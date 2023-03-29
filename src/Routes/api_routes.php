@@ -3,6 +3,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Factory\AppFactory;
 use Slim\Routing\RouteCollectorProxy;
+use Vanier\Api\Controllers\ExoMoonController;
 use Vanier\Api\Controllers\RootController;
 use Vanier\Api\Controllers\PlanetController;
 use Vanier\Api\Controllers\StarController;
@@ -19,6 +20,10 @@ $app->get('/', [RootController::class, 'handleGetRoot']);
 
 $app->group('/planets', function (RouteCollectorProxy $group) {
     $group->get('', [PlanetController::class, 'handleGetPlanets']);
+});
+
+$app->group('/exoMoon', function (RouteCollectorProxy $group) {
+    $group->get('', [ExoMoonController::class, 'handleGetExoMoons']);
 });
 
 $app->group('/stars', function (RouteCollectorProxy $group) {
