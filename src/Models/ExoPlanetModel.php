@@ -53,4 +53,17 @@ class ExoPlanetModel extends BaseModel  {
         $this->setPaginationOptions($page, $page_size);
         return $this->paginate($sql, $query_values);
     }
+
+    public function selectExoPlanet(int $exoPlanet_id){
+        
+        // Base Statement
+        $select = "SELECT s.*";
+        $from = " FROM $this->table_name AS s";
+        $where = " WHERE exoplanet_id =:exoplanet_id AND 1 ";
+        $group_by = "";
+
+        $sql = $select . $from . $where . $group_by;
+
+        return $this->run($sql, [":exoplanet_id"=> $exoPlanet_id])->fetch();
+    }
 }
