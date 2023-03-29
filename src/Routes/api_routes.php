@@ -23,4 +23,5 @@ $app->group('/planets', function (RouteCollectorProxy $group) {
 
 $app->group('/stars', function (RouteCollectorProxy $group) {
     $group->get('', [StarController::class, 'handleGetStars']);
+    $group->get('/{star_id}', [StarController::class, 'handleGetStar']);
 });
