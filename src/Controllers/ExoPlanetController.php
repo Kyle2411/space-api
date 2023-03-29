@@ -26,7 +26,7 @@ class ExoPlanetController extends BaseController
 
     public function handleGetExoPlanet(Request $request, Response $response, array $uri_args)
     {
-        $exoplanet_id = $uri_args['exoplanet_id'];
+        $exoplanet_id = $uri_args['exoPlanet_id'];
 
         $data = $this->exoPlanet_model->selectExoPlanet($exoplanet_id);      
         return $this->prepareOkResponse($response, $data);
