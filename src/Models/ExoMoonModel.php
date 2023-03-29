@@ -53,4 +53,17 @@ class ExoMoonModel extends BaseModel  {
         $this->setPaginationOptions($page, $page_size);
         return $this->paginate($sql, $query_values);
     }
+
+    public function selectExoMoon(int $exomoon_id){
+        
+        // Base Statement
+        $select = "SELECT exM.*";
+        $from = " FROM $this->table_name AS exM";
+        $where = " WHERE exomoon_id =:exomoon_id AND 1 ";
+        $group_by = "";
+
+        $sql = $select . $from . $where . $group_by;
+
+        return $this->run($sql, [":exomoon_id"=> $exomoon_id])->fetch();
+    }
 }

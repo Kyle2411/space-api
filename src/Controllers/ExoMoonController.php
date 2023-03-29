@@ -22,4 +22,13 @@ class ExoMoonController extends BaseController
         $data = $this->exoMoon_model->selectExoMoons();
         return $this->prepareOkResponse($response, $data);
     }
+
+    public function handleGetExMoon(Request $request, Response $response, array $uri_args)
+    {
+        $exomoon_id = $uri_args['exoMoon_id'];
+
+        $data = $this->exoMoon_model->selectExoMoon($exomoon_id);
+
+        return $this->prepareOkResponse($response, $data);
+    }
 }

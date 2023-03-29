@@ -29,6 +29,7 @@ $app->group('/planet', function (RouteCollectorProxy $group) {
 
 $app->group('/exoMoon', function (RouteCollectorProxy $group) {
     $group->get('', [ExoMoonController::class, 'handleGetExoMoons']);
+    $group->get('/{exoMoon_id}', [ExoMoonController::class, 'handleGetExMoon']);
 });
 
 $app->group('/stars', function (RouteCollectorProxy $group) {
