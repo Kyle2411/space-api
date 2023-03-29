@@ -5,6 +5,7 @@ use Slim\Factory\AppFactory;
 use Slim\Routing\RouteCollectorProxy;
 use Vanier\Api\Controllers\RootController;
 use Vanier\Api\Controllers\PlanetController;
+use Vanier\Api\Controllers\StarController;
 
 // Import the app instance into this file's scope.
 global $app;
@@ -20,8 +21,6 @@ $app->group('/planets', function (RouteCollectorProxy $group) {
     $group->get('', [PlanetController::class, 'handleGetPlanets']);
 });
 
-// ROUTE: /hello
-$app->get('/hello', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
-    $response->getBody()->write("Reporting! Hello there!");    
-    return $response;
-}); 
+$app->group('/stars', function (RouteCollectorProxy $group) {
+    $group->get('', [StarController::class, 'handleGetStars']);
+});
