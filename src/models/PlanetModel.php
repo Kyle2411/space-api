@@ -54,5 +54,17 @@ class PlanetModel extends BaseModel  {
         return $this->paginate($sql, $query_values);
     }
 
-    
+
+    public function selectPlanet(int $planet_id){
+        
+        // Base Statement
+        $select = "SELECT s.*";
+        $from = " FROM $this->table_name AS s";
+        $where = " WHERE planet_id =:planet_id AND 1 ";
+        $group_by = "";
+
+        $sql = $select . $from . $where . $group_by;
+
+        return $this->run($sql, [":planet_id"=> $planet_id])->fetch();
+    }
 }
