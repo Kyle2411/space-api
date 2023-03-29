@@ -13,7 +13,7 @@ class RootController extends BaseController
         $data = array(
             'about' => 'Welcome, this is a Web services that provides this and that...',
             'resources' => 'Blah'
-        );                
+        );
         return $this->prepareOkResponse($response, $data);
     }
 }

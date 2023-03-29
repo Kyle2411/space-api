@@ -20,7 +20,7 @@ class StarController extends BaseController
 
     public function handleGetStars(Request $request, Response $response, array $uri_args)
     {
-        $data = $this->star_model->selectStars();        
+        $data = $this->star_model->selectStars();
 
         return $this->prepareOkResponse($response, $data);
     }
@@ -29,7 +29,7 @@ class StarController extends BaseController
     {
         $star_id = $uri_args['star_id'];
 
-        $data = $this->star_model->selectStar($star_id);      
+        $data = $this->star_model->selectStar($star_id);
 
         return $this->prepareOkResponse($response, $data);
     }
@@ -39,8 +39,8 @@ class StarController extends BaseController
         $star_id = $uri_args['star_id'];
         $planet_model = new PlanetModel();
 
-        $data = $this->star_model->selectStar($star_id);      
-        $data['planets'] =  $planet_model->selectPlanets($star_id);      
+        $data = $this->star_model->selectStar($star_id);
+        $data['planets'] =  $planet_model->selectPlanets($star_id);
 
         return $this->prepareOkResponse($response, $data);
     }

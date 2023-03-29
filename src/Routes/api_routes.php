@@ -14,10 +14,10 @@ global $app;
 
 // NOTE: Add your app routes here.
 // The callbacks must be implemented in a controller class.
-// The Vanier\Api must be used as namespace prefix. 
+// The Vanier\Api must be used as namespace prefix.
 
 // ROUTE: /
-$app->get('/', [RootController::class, 'handleGetRoot']); 
+$app->get('/', [RootController::class, 'handleGetRoot']);
 
 $app->group('/planets', function (RouteCollectorProxy $group) {
     $group->get('', [PlanetController::class, 'handleGetPlanets']);

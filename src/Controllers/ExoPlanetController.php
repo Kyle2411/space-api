@@ -19,7 +19,7 @@ class ExoPlanetController extends BaseController
 
     public function handleGetExoPlanets(Request $request, Response $response, array $uri_args)
     {
-        $data = $this->exoPlanet_model->selectExoPlanets();        
+        $data = $this->exoPlanet_model->selectExoPlanets();
 
         return $this->prepareOkResponse($response, $data);
     }
@@ -28,7 +28,7 @@ class ExoPlanetController extends BaseController
     {
         $exoplanet_id = $uri_args['exoPlanet_id'];
 
-        $data = $this->exoPlanet_model->selectExoPlanet($exoplanet_id);      
+        $data = $this->exoPlanet_model->selectExoPlanet($exoplanet_id);
         return $this->prepareOkResponse($response, $data);
     }
 }
