@@ -6,6 +6,7 @@ use Slim\Routing\RouteCollectorProxy;
 use Vanier\Api\Controllers\ExoMoonController;
 use Vanier\Api\Controllers\RootController;
 use Vanier\Api\Controllers\PlanetController;
+use Vanier\Api\Controllers\ExoPlanetController;
 use Vanier\Api\Controllers\StarController;
 
 // Import the app instance into this file's scope.
@@ -29,9 +30,12 @@ $app->group('/exoMoon', function (RouteCollectorProxy $group) {
 $app->group('/stars', function (RouteCollectorProxy $group) {
     $group->get('', [StarController::class, 'handleGetStars']);
     $group->get('/{star_id}', [StarController::class, 'handleGetStar']);
+    $group->get('/{star_id}/planets', [StarController::class, 'handleGetStarPlanets']);
 });
 
 $app->group('/exoplanet', function (RouteCollectorProxy $group) {
     $group->get('', [StarController::class, 'handleGetExoPlanet']);
     $group->get('/{exoplanet_id}', [StarController::class, 'handleGetExoPLanet']);
+    $group->get('/{star_id}/planets', [StarController::class, 'handleGetStarPlanets']);
+    $group->get('/{star_id}/exoplanets', [StarController::class, 'handleGetStarPlanets']);
 });
