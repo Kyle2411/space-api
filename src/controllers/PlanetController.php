@@ -23,4 +23,12 @@ class PlanetController extends BaseController
 
         return $this->prepareOkResponse($response, $data);
     }
+
+    public function handleGetPlanet(Request $request, Response $response, array $uri_args)
+    {
+        $planet_id = $uri_args['planet_id'];
+
+        $data = $this->planet_model->selectPlanet($planet_id);      
+        return $this->prepareOkResponse($response, $data);
+    }
 }
