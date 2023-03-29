@@ -33,9 +33,8 @@ $app->group('/stars', function (RouteCollectorProxy $group) {
     $group->get('/{star_id}/planets', [StarController::class, 'handleGetStarPlanets']);
 });
 
-$app->group('/exoplanet', function (RouteCollectorProxy $group) {
-    $group->get('', [StarController::class, 'handleGetExoPlanet']);
-    $group->get('/{exoplanet_id}', [StarController::class, 'handleGetExoPLanet']);
-    $group->get('/{star_id}/planets', [StarController::class, 'handleGetStarPlanets']);
-    $group->get('/{star_id}/exoplanets', [StarController::class, 'handleGetStarPlanets']);
+$app->group('/exoPlanet', function (RouteCollectorProxy $group) {
+    $group->get('', [ExoPlanetController::class, 'handleGetExoPlanet']);
+    $group->get('/{exoPlanet_id}', [ExoPlanetController::class, 'handleGetExoPLanet']);
+    $group->get('/{exoPlanet_id}/exoMoons', [ExoPlanetController::class, 'handleGetExoPlanetExoMoons']);
 });
