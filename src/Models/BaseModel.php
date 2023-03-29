@@ -69,6 +69,32 @@ class BaseModel
     }
 
     /**
+     * Paginate SQL Query Result Set
+     */
+    protected function paginate(string $sql, array $filters = [])
+    {
+        // Get Row Count from Query
+        $row_count = $this->count($sql, $filters);
+
+        // Instantiate Pagination Helper
+        $pagination_helper = new PaginationHelper($this->current_page, $this->records_per_page, $row_count);
+
+        // Get Computed Offset from Pagination Helper
+        $offset = $pagination_helper->getOffset();
+
+        // Add Pagination to Existing Query
+        $sql .= " LIMIT $this->records_per_page OFFSET $offset";
+
+        // Get Pagination Info
+        $data = $pagination_helper->getPaginationInfo();
+
+        // Query Paginated Result
+        $data["data"] = $this->run($sql, $filters)->fetchAll();
+
+        return $data;
+    }
+
+    /**
      * get PDO instance
      * 
      * @return $db PDO instance
