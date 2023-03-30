@@ -49,7 +49,7 @@ class AstronautController extends BaseController
     }
 
     /**
-     * Handle Astronaut GET Request
+     * Handle Astronaut Missions GET Request
      * @param Request $request Client Request
      * @param Response $response Server Response
      * @return Response Altered Server Response
@@ -59,7 +59,7 @@ class AstronautController extends BaseController
         // Get URI Id Argument
         $asteroid_id = $uri_args["astronaut_id"];
 
-        // Select Astronauts Based on Id
+        // Select Astronaut Based on Id
         $result = $this->astronaut_model->selectAstronaut($asteroid_id);
 
         return $this->prepareOkResponse($response, $result ? $result : [], empty($result) ? 204 : 200);

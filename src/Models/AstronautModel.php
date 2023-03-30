@@ -31,7 +31,7 @@ class AstronautModel extends BaseModel  {
 
         // Base Statement
         $select = "SELECT a.*";
-        $from = " FROM astronaut AS a";
+        $from = " FROM $this->table_name AS a";
         $where = " WHERE 1 ";
         $group_by = "";
 
