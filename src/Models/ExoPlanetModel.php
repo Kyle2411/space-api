@@ -34,18 +34,10 @@ class ExoPlanetModel extends BaseModel  {
         $where = " WHERE 1 ";
         $group_by = "";
 
-        // Apply Filters If They Exist...
-        /*
-        if (isset($filters["first_name"])) {
-            $where .= "AND a.first_name LIKE CONCAT('%', :first_name, '%') ";
-            $query_values[":first_name"] = $filters["first_name"];
+        if (isset($filters["star_id"])) {
+            $where .= "AND p.star_id =:star_id ";
+            $query_values[":star_id"] = $filters["star_id"];
         }
-
-        if (isset($filters["last_name"])) {
-            $where .= "AND a.last_name LIKE CONCAT('%', :last_name, '%') ";
-            $query_values[":last_name"] = $filters["last_name"];
-        }
-        */
 
         $sql = $select . $from . $where . $group_by;
 
