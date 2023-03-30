@@ -6,6 +6,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Vanier\Api\Helpers\Validator;
 use Vanier\Api\Models\PlanetModel;
+use Vanier\Api\Models\ExoPlanetModel;
 use Vanier\Api\Models\StarModel;
 
 class StarController extends BaseController
@@ -37,10 +38,25 @@ class StarController extends BaseController
     public function handleGetStarPlanets(Request $request, Response $response, array $uri_args)
     {
         $star_id = $uri_args['star_id'];
+        $filters = $request->getQueryParams() + ['star_id' => $star_id];
+        
         $planet_model = new PlanetModel();
 
         $data = $this->star_model->selectStar($star_id);
-        $data['planets'] =  $planet_model->selectPlanets($star_id);
+        $data['planets'] =  $planet_model->selectPlanets($filters);
+
+        return $this->prepareOkResponse($response, $data);
+    }
+
+    public function handleGetStarExoPlanets(Request $request, Response $response, array $uri_args)
+    {
+        $star_id = $uri_args['star_id'];
+        $filters = $request->getQueryParams() + ['star_id' => $star_id];
+        
+        $exoPlanet_model = new ExoPlanetModel();
+
+        $data = $this->star_model->selectStar($star_id);
+        $data['exoPlanets'] =  $exoPlanet_model->selectExoPlanets($filters);
 
         return $this->prepareOkResponse($response, $data);
     }

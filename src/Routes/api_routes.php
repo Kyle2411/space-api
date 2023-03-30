@@ -33,6 +33,7 @@ $app->group('/stars', function (RouteCollectorProxy $group) {
     $group->get('', [StarController::class, 'handleGetStars']);
     $group->get('/{star_id}', [StarController::class, 'handleGetStar']);
     $group->get('/{star_id}/planets', [StarController::class, 'handleGetStarPlanets']);
+    $group->get('/{star_id}/exoPlanets', [StarController::class, 'handleGetStarExoPlanets']);
 });
 
 $app->group('/exoPlanets', function (RouteCollectorProxy $group) {
