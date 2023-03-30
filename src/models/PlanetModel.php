@@ -33,11 +33,12 @@ class PlanetModel extends BaseModel  {
         $from = " FROM $this->table_name AS p";
         $where = " WHERE 1 ";
         $group_by = "";
-        
-        if (isset($filters["star_id"])) {
-            $where .= "AND p.star_id =:star_id ";
-            $query_values[":star_id"] = $filters["star_id"];
+
+        if (isset($filters["planetName"])) {
+            $where .= " AND p.planet_name LIKE CONCAT('%', :planet_name, '%')";
+            $query_values[":planet_name"] = $filters["planetName"];
         }
+
 
         $sql = $select . $from . $where . $group_by;
 
