@@ -23,7 +23,7 @@ class ExoMoonController extends BaseController
         return $this->prepareOkResponse($response, $data);
     }
 
-    public function handleGetExMoon(Request $request, Response $response, array $uri_args)
+    public function handleGetExoMoon(Request $request, Response $response, array $uri_args)
     {
         $exomoon_id = $uri_args['exoMoon_id'];
 
