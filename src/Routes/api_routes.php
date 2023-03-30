@@ -9,6 +9,7 @@ use Vanier\Api\Controllers\PlanetController;
 use Vanier\Api\Controllers\ExoPlanetController;
 use Vanier\Api\Controllers\StarController;
 use Vanier\Api\Controllers\AsteroidController;
+use Vanier\Api\Controllers\MoonController;
 
 // Import the app instance into this file's scope.
 global $app;
@@ -43,6 +44,10 @@ $app->group('/exoMoons', function (RouteCollectorProxy $group) {
     $group->get('/{exoMoon_id}', [ExoMoonController::class, 'handleGetExoMoon']);
 });
 
+$app->group('/moons', function (RouteCollectorProxy $group){
+    $group->get('', [MoonController::class, 'handleGetMoons']);
+    $group->get('/{moon_id}', [MoonController::class, 'handleGetMoon']);
+});
 
 $app->group('/asteroids', function (RouteCollectorProxy $group) {
     $group->get('', [AsteroidController::class, 'handleGetAsteroids']);
