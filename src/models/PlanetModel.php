@@ -12,6 +12,7 @@ class PlanetModel extends BaseModel  {
 
     public function __construct() {
         parent::__construct();
+       
     }
 
     /**
@@ -39,6 +40,15 @@ class PlanetModel extends BaseModel  {
             $query_values[":planet_name"] = $filters["planetName"];
         }
 
+        if (isset($filters["color"])) {
+            
+            $parts = explode(',', $filters["color"]);
+            foreach ($parts as $key => $values) {
+                $where .= " AND p.color LIKE CONCAT('%', :color, '%')";
+                $query_values[":color"] = $values;
+            }
+           
+        }
 
         $sql = $select . $from . $where . $group_by;
 
