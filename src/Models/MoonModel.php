@@ -29,23 +29,35 @@ class MoonModel extends BaseModel  {
         $query_values = [];
 
         // Base Statement
-        $select = "SELECT M.*";
-        $from = " FROM $this->table_name AS M";
+        $select = "SELECT m.*";
+        $from = " FROM $this->table_name AS m";
         $where = " WHERE 1 ";
         $group_by = "";
 
-        // Apply Filters If They Exist...
-        /*
-        if (isset($filters["first_name"])) {
-            $where .= "AND a.first_name LIKE CONCAT('%', :first_name, '%') ";
-            $query_values[":first_name"] = $filters["first_name"];
+        if (isset($filters["moonName"])) {
+            $where .= "AND m.moon_name LIKE CONCAT('%', :moon_name, '%') ";
+            $query_values[":moon_name"] = $filters["moonName"];
         }
 
-        if (isset($filters["last_name"])) {
-            $where .= "AND a.last_name LIKE CONCAT('%', :last_name, '%') ";
-            $query_values[":last_name"] = $filters["last_name"];
+        if (isset($filters["moonMass"])) {
+            $where .= "AND m.moon_mass = :moon_mass ";
+            $query_values[":moon_mass"] = $filters["moonMass"];
         }
-        */
+
+        if (isset($filters["fromMoonRadius"])) {
+            $where .= "AND m.moon_radius >= :from_moon_radius ";
+            $query_values[":from_moon_radius"] = $filters["fromMoonRadius"];
+        }
+
+        if (isset($filters["toMoonRadius"])) {
+            $where .= "AND m.moon_radius <= :to_moon_radius ";
+            $query_values[":to_moon_radius"] = $filters["toMoonRadius"];
+        }
+
+        if (isset($filters["moonDensity"])) {
+            $where .= "AND m.moon_desity = :moon_desity ";
+            $query_values[":moon_desity"] = $filters["moonDensity"];
+        }
 
         $sql = $select . $from . $where . $group_by;
 
@@ -57,8 +69,8 @@ class MoonModel extends BaseModel  {
     public function selectMoon(int $moon_id){
         
         // Base Statement
-        $select = "SELECT M.*";
-        $from = " FROM $this->table_name AS M";
+        $select = "SELECT m.*";
+        $from = " FROM $this->table_name AS m";
         $where = " WHERE moon_id =:moon_id AND 1 ";
         $group_by = "";
 
