@@ -34,7 +34,30 @@ class MissionModel extends BaseModel  {
         $where = " WHERE 1 ";
         $group_by = "";
 
-       
+        if (isset($filters["missionName"])) {
+            $where .= " AND p.mission_name LIKE CONCAT('%', :mission_name, '%')";
+            $query_values[":mission_name"] = $filters["missionName"];
+        }
+
+        if (isset($filters["companyName"])) {
+            $where .= " AND p.company_name LIKE CONCAT('%', :company_name, '%')";
+            $query_values[":company_name"] = $filters["companyName"];
+        }
+
+        if (isset($filters["fromMissionDate"])) {
+            $where .= " AND p.mission_date >= :fromMissionDate";
+            $query_values[":fromMissionDate"] = $filters["fromMissionDate"];
+        }
+
+        if (isset($filters["toMissionDate"])) {
+            $where .= " AND p.mission_date <= :toMissionDate";
+            $query_values[":toMissionDate"] = $filters["toMissionDate"];
+        }
+
+        if (isset($filters["missionStatus"])) {
+            $where .= " AND p.mission_status LIKE CONCAT('%', :mission_status, '%')";
+            $query_values[":mission_status"] = $filters["missionStatus"];
+        }
 
         $sql = $select . $from . $where . $group_by;
 
