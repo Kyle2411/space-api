@@ -6,6 +6,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Vanier\Api\Helpers\Validator;
 use Vanier\Api\Models\ExoMoonModel;
+use Vanier\Api\Helpers\ArrayHelper;
 
 class ExoMoonController extends BaseController
 {
@@ -19,7 +20,15 @@ class ExoMoonController extends BaseController
 
     public function handleGetExoMoons(Request $request, Response $response, array $uri_args)
     {
-        $data = $this->exoMoon_model->selectExoMoons();
+        $params = $request->getQueryParams();
+
+        // Get Page and Page Size from Parameters
+        $page = isset($params["page"]) ? $params["page"] : null;
+        $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
+
+        $filters = ArrayHelper::filterKeys($params, ["exoMoonName", "discoveryMethod", "orbitalPeriodDays", "exoMass"]);
+        
+        $data = $this->exoMoon_model->selectExoMoons($filters, $page, $page_size);
         return $this->prepareOkResponse($response, $data);
     }
 
