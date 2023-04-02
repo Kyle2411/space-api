@@ -50,6 +50,11 @@ class PlanetModel extends BaseModel  {
            
         }
 
+        if (isset($filters["star_id"])) {
+            $where .= " AND p.star_id = :star_id";
+            $query_values[":star_id"] = $filters["star_id"];
+        }
+
         $sql = $select . $from . $where . $group_by;
 
         // Return Paginated Results

@@ -4,7 +4,7 @@ namespace Vanier\Api\Controllers;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Vanier\Api\Helpers\Validator;
+use Vanier\Api\Helpers\ArrayHelper;
 use Vanier\Api\Models\AsteroidModel;
 
 class AsteroidController extends BaseController
@@ -19,7 +19,15 @@ class AsteroidController extends BaseController
 
     public function handleGetAsteroids(Request $request, Response $response, array $uri_args)
     {
-        $data = $this->asteroid_model->selectAsteroids();
+        $params = $request->getQueryParams();
+
+        // Get Page and Page Size from Parameters
+        $page = isset($params["page"]) ? $params["page"] : null;
+        $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
+
+        $filters = ArrayHelper::filterKeys($params, ["asteroidName", "danger", "designation", "monitored", "fromMinDiameter", "toMaxDiameter", "fromMagnitude", "toMagnitude"]);
+
+        $data = $this->asteroid_model->selectAsteroids($filters, $page, $page_size);
 
         return $this->prepareOkResponse($response, $data);
     }
