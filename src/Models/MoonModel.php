@@ -29,8 +29,9 @@ class MoonModel extends BaseModel  {
         $query_values = [];
 
         // Base Statement
-        $select = "SELECT m.*";
+        $select = "SELECT planet.planet_name, m.*";
         $from = " FROM $this->table_name AS m";
+        $join = " JOIN planet ON m.planet_id = planet.planet_id  ";
         $where = " WHERE 1 ";
         $group_by = "";
 
@@ -59,7 +60,7 @@ class MoonModel extends BaseModel  {
             $query_values[":moon_desity"] = $filters["moonDensity"];
         }
 
-        $sql = $select . $from . $where . $group_by;
+        $sql = $select . $from . $join . $where . $group_by;
 
         // Return Paginated Results
         $this->setPaginationOptions($page, $page_size);
@@ -69,12 +70,13 @@ class MoonModel extends BaseModel  {
     public function selectMoon(int $moon_id){
         
         // Base Statement
-        $select = "SELECT m.*";
+        $select = "SELECT planet.planet_name, m.*";
         $from = " FROM $this->table_name AS m";
+        $join = " JOIN planet ON m.planet_id = planet.planet_id  ";
         $where = " WHERE moon_id =:moon_id AND 1 ";
         $group_by = "";
 
-        $sql = $select . $from . $where . $group_by;
+        $sql = $select . $from . $join . $where . $group_by;
 
         return $this->run($sql, [":moon_id"=> $moon_id])->fetch();
     }
