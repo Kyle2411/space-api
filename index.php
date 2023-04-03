@@ -1,7 +1,7 @@
 <?php
 
 use Slim\Factory\AppFactory;
-
+use Vanier\Api\Middlewares\ContentNegotiationMiddleware;
 
 require __DIR__ . '/vendor/autoload.php';
  // Include the file that contains the application's global configuration settings,
@@ -14,6 +14,7 @@ $app = AppFactory::create();
 $app->addRoutingMiddleware();
 $app->addBodyParsingMiddleware();
 
+$app->add(new ContentNegotiationMiddleware());
 //-- Add error handling middleware.
 // NOTE: the error middleware MUST be added last.
 $errorMiddleware = $app->addErrorMiddleware(true, true, true);

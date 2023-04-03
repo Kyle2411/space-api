@@ -5,6 +5,7 @@ namespace Vanier\Api\Controllers;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Vanier\Api\Helpers\Validator;
+use Vanier\Api\Helpers\ArrayHelper;
 use Vanier\Api\Models\PlanetModel;
 
 class PlanetController extends BaseController
@@ -19,7 +20,13 @@ class PlanetController extends BaseController
 
     public function handleGetPlanets(Request $request, Response $response, array $uri_args)
     {
-        $data = $this->planet_model->selectPlanets();        
+        $params = $request->getQueryParams();
+        $page = isset($params["page"]) ? $params["page"] : null;
+        $page_size = isset($params["page_size"]) ? $params["page_size"] : null;
+
+        $filters = ArrayHelper::filterKeys($params, ["planetName", "color"]);
+
+        $data = $this->planet_model->selectPlanets($filters, $page, $page_size);
 
         return $this->prepareOkResponse($response, $data);
     }

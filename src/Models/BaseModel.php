@@ -34,7 +34,7 @@ class BaseModel
      * Instantiates the BaseModel.
      * @global array $db_options    database connection options.
      * @param array $options        Optional array of PDO options
-     * @throws Exception 
+     * @throws Exception
      */
     public function __construct($options = [])
     {

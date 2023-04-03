@@ -7,12 +7,11 @@ use Vanier\Api\Validations\Validator;
 use Vanier\Api\Models\BaseModel;
 use Vanier\Api\Helpers\ArrayHelper;
 
-class PlanetModel extends BaseModel  {
-    private $table_name = "planet";
+class MissionModel extends BaseModel  {
+    private $table_name = "mission";
 
     public function __construct() {
         parent::__construct();
-       
     }
 
     /**
@@ -22,7 +21,7 @@ class PlanetModel extends BaseModel  {
      * @param int $page_size Size of Current Page
      * @return array Paginated Actor Result Set
      */
-    public function selectPlanets(array $filters = [], $page = null, $page_size = null) {
+    public function selectMissions(array $filters = [], $page = null, $page_size = null) {
         // Set Page and Page Size Default Values If Params Null
         if (!$page) $page = 1;
         if (!$page_size) $page_size = 10;
@@ -35,24 +34,29 @@ class PlanetModel extends BaseModel  {
         $where = " WHERE 1 ";
         $group_by = "";
 
-        if (isset($filters["planetName"])) {
-            $where .= " AND p.planet_name LIKE CONCAT('%', :planet_name, '%')";
-            $query_values[":planet_name"] = $filters["planetName"];
+        if (isset($filters["missionName"])) {
+            $where .= " AND p.mission_name LIKE CONCAT('%', :mission_name, '%')";
+            $query_values[":mission_name"] = $filters["missionName"];
         }
 
-        if (isset($filters["color"])) {
-            
-            $parts = explode(',', $filters["color"]);
-            foreach ($parts as $key => $values) {
-                $where .= " AND p.color LIKE CONCAT('%', :color, '%')";
-                $query_values[":color"] = $values;
-            }
-           
+        if (isset($filters["companyName"])) {
+            $where .= " AND p.company_name LIKE CONCAT('%', :company_name, '%')";
+            $query_values[":company_name"] = $filters["companyName"];
         }
 
-        if (isset($filters["star_id"])) {
-            $where .= " AND p.star_id = :star_id";
-            $query_values[":star_id"] = $filters["star_id"];
+        if (isset($filters["fromMissionDate"])) {
+            $where .= " AND p.mission_date >= :fromMissionDate";
+            $query_values[":fromMissionDate"] = $filters["fromMissionDate"];
+        }
+
+        if (isset($filters["toMissionDate"])) {
+            $where .= " AND p.mission_date <= :toMissionDate";
+            $query_values[":toMissionDate"] = $filters["toMissionDate"];
+        }
+
+        if (isset($filters["missionStatus"])) {
+            $where .= " AND p.mission_status LIKE CONCAT('%', :mission_status, '%')";
+            $query_values[":mission_status"] = $filters["missionStatus"];
         }
 
         $sql = $select . $from . $where . $group_by;
@@ -62,18 +66,15 @@ class PlanetModel extends BaseModel  {
         return $this->paginate($sql, $query_values);
     }
 
-
-    public function selectPlanet(int $planet_id){
+    public function selectMission(int $mission_id){
         
         // Base Statement
         $select = "SELECT s.*";
         $from = " FROM $this->table_name AS s";
-        $where = " WHERE planet_id =:planet_id AND 1 ";
+        $where = " WHERE mission_id =:mission_id AND 1 ";
         $group_by = "";
 
         $sql = $select . $from . $where . $group_by;
 
-        return $this->run($sql, [":planet_id"=> $planet_id])->fetch();
     }
-    
 }

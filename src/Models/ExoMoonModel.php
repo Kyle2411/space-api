@@ -34,23 +34,48 @@ class ExoMoonModel extends BaseModel  {
         $where = " WHERE 1 ";
         $group_by = "";
 
-        // Apply Filters If They Exist...
-        /*
-        if (isset($filters["first_name"])) {
-            $where .= "AND a.first_name LIKE CONCAT('%', :first_name, '%') ";
-            $query_values[":first_name"] = $filters["first_name"];
+        if (isset($filters["exoMoonName"])) {
+            $where .= "AND exM.exomoon_name LIKE CONCAT('%', :exomoon_name, '%') ";
+            $query_values[":exomoon_name"] = $filters["exoMoonName"];
         }
 
-        if (isset($filters["last_name"])) {
-            $where .= "AND a.last_name LIKE CONCAT('%', :last_name, '%') ";
-            $query_values[":last_name"] = $filters["last_name"];
+        if (isset($filters["exoMass"])) {
+            $where .= "AND exM.mass = :mass ";
+            $query_values[":mass"] = $filters["exoMass"];
         }
-        */
+
+        if (isset($filters["orbitalPeriodDays"])) {
+            $where .= "AND exM.orbital_period_days = :orbital_period_days ";
+            $query_values[":orbital_period_days"] = $filters["orbitalPeriodDays"];
+        }
+
+        if (isset($filters["discoveryMethod"])) {
+            $where .= "AND exM.discovery_method >= :from_discovery_method ";
+            $query_values[":from_discovery_method"] = $filters["discoveryMethod"];
+        }
+
+        if (isset($filters["discoveryMethod"])) {
+            $where .= "AND exM.discovery_method <= :to_discovery_method ";
+            $query_values[":to_discovery_method"] = $filters["discoveryMethod"];
+        }
 
         $sql = $select . $from . $where . $group_by;
 
         // Return Paginated Results
         $this->setPaginationOptions($page, $page_size);
         return $this->paginate($sql, $query_values);
+    }
+
+    public function selectExoMoon(int $exomoon_id){
+        
+        // Base Statement
+        $select = "SELECT exM.*";
+        $from = " FROM $this->table_name AS exM";
+        $where = " WHERE exomoon_id =:exomoon_id AND 1 ";
+        $group_by = "";
+
+        $sql = $select . $from . $where . $group_by;
+
+        return $this->run($sql, [":exomoon_id"=> $exomoon_id])->fetch();
     }
 }
