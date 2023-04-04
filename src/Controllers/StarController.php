@@ -53,7 +53,7 @@ class StarController extends BaseController
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
 
-        $filters = ArrayHelper::filterKeys($params, ["planetName", "color"]);
+        $filters = ArrayHelper::filterKeys($params, ["planetName", "planetColor", "star_id", "fromMass","toMass", "fromDiameter", "toDiameter","fromLengthOfDay","toLengthOfDay" ,"fromSurfaceGravity", "toSurfaceGravity", "toTemperature", "fromTemperature"]);
         $filters["star_id"] = $star_id;
 
         $planet_model = new PlanetModel();
