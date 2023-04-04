@@ -77,9 +77,11 @@ $app->group('/missions', function (RouteCollectorProxy $group) {
 $app->group('/astronauts', function (RouteCollectorProxy $group) {
     $group->get('', [AstronautController::class, 'handleGetAstronauts']);
     $group->get('/{astronaut_id}', [AstronautController::class, 'handleGetAstronaut']);
+    $group->get('/{astronaut_id}/missions', [AstronautController::class, 'handleGetAstronautMissions']);
 });
 
 $app->group('/rockets', function (RouteCollectorProxy $group) {
     $group->get('', [RocketController::class, 'handleGetRockets']);
     $group->get('/{rocket_id}', [RocketController::class, 'handleGetRocket']);
+    $group->get('/{rocket_id}/missions', [RocketController::class, 'handleGetRocketMissions']);
 });

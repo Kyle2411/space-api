@@ -74,10 +74,10 @@ class AstronautController extends BaseController
     public function handleGetAstronautMissions(Request $request, Response $response, array $uri_args)
     {
         // Get URI Id Argument
-        $asteroid_id = $uri_args["astronaut_id"];
+        $astronaut_id = $uri_args["astronaut_id"];
 
         // Select Astronauts Based on Id
-        $result = $this->astronaut_model->selectAstronaut($asteroid_id);
+        $result = $this->astronaut_model->selectAstronaut($astronaut_id);
 
         // Get URI Parameters
         $params = $request->getQueryParams();
@@ -87,9 +87,10 @@ class AstronautController extends BaseController
         $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
 
         // Get Filters from Parameters
-        $filters = ArrayHelper::filterKeys($params, []);
+        $filters = ArrayHelper::filterKeys($params, ["missionName", "companyName", "fromMissionDate", "toMissionDate", "missionStatus"]);
+        $filters["astronautId"] = $astronaut_id;
         
-        // $result["missions"] = $this->mission_model->selectMissions([""])
+        $result["missions"] = $this->mission_model->selectMissions($filters, $page, $page_size);
 
         return $this->prepareOkResponse($response, $result ? $result : [], empty($result) ? 204 : 200);
     }
