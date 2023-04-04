@@ -7,11 +7,27 @@ use Vanier\Api\Validations\Validator;
 use Vanier\Api\Models\BaseModel;
 use Vanier\Api\Helpers\ArrayHelper;
 
+/**
+ * Summary of ExoMoonModel
+ */
 class ExoMoonModel extends BaseModel  {
     private $table_name = "exomoon";
 
+    /**
+     * Summary of __construct
+     */
     public function __construct() {
         parent::__construct();
+    }
+
+    /**
+     * Summary of createExoMoon
+     * @param array $actor
+     * @return bool|string
+     */
+    public function createExoMoon(array $exoMoon)
+    {
+        return $this->insert($this->table_name, $exoMoon);
     }
 
     /**
