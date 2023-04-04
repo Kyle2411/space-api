@@ -7,6 +7,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Vanier\Api\Helpers\ArrayHelper;
 use Vanier\Api\Helpers\Validator;
 use Vanier\Api\Models\ExoPlanetModel;
+use Vanier\Api\Models\ExoMoonModel;
 
 class ExoPlanetController extends BaseController
 {
@@ -36,6 +37,20 @@ class ExoPlanetController extends BaseController
         $exoplanet_id = $uri_args['exoPlanet_id'];
 
         $data = $this->exoPlanet_model->selectExoPlanet($exoplanet_id);
+        return $this->prepareOkResponse($response, $data);
+    }
+
+    public function handleGetExoPlanetExoMoons(Request $request, Response $response, array $uri_args)
+    {
+        $exoPlanet_id = $uri_args['exoPlanet_id'];
+        $filters = ['exoPlanet_id' => $exoPlanet_id];
+        
+        $exoMoon_model = new exoMoonModel();
+
+        $data = $this->exoPlanet_model->selectExoPlanet($exoPlanet_id);
+    
+        $data['exoMoon'] = $exoMoon_model->selectExoMoonByExoPlanet($exoPlanet_id);
+       // var_dump($data);
         return $this->prepareOkResponse($response, $data);
     }
 }

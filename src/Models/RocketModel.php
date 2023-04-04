@@ -103,6 +103,8 @@ class RocketModel extends BaseModel  {
 
         $sql = $select . $from . $where;
         
-        return $this->run($sql, $query_values)->fetch();
+        return $this->run($sql, $query_values)->fetchAll();
     }
+
+
 }

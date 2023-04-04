@@ -59,6 +59,9 @@ class ExoMoonModel extends BaseModel  {
             $query_values[":to_discovery_method"] = $filters["discoveryMethod"];
         }
 
+
+       
+
         $sql = $select . $from . $where . $group_by;
 
         // Return Paginated Results
@@ -77,5 +80,18 @@ class ExoMoonModel extends BaseModel  {
         $sql = $select . $from . $where . $group_by;
 
         return $this->run($sql, [":exomoon_id"=> $exomoon_id])->fetch();
+    }
+
+    public function selectExoMoonByExoPlanet(int $exoPlanet_id){
+        
+        // Base Statement
+        $select = "SELECT m.*";
+        $from = " FROM exomoon AS m";
+        $where = " WHERE exoplanet_id =:exoplanet_id AND 1 ";
+        $group_by = "";
+
+        $sql = $select . $from . $where . $group_by;
+        
+        return $this->run($sql, [":exoplanet_id"=> $exoPlanet_id])->fetchAll();
     }
 }

@@ -7,6 +7,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Vanier\Api\Helpers\Validator;
 use Vanier\Api\Helpers\ArrayHelper;
 use Vanier\Api\Models\PlanetModel;
+use Vanier\Api\Models\MoonModel;
 
 class PlanetController extends BaseController
 {
@@ -24,7 +25,7 @@ class PlanetController extends BaseController
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["page_size"]) ? $params["page_size"] : null;
 
-        $filters = ArrayHelper::filterKeys($params, ["planetName", "color"]);
+        $filters = ArrayHelper::filterKeys($params, ["planetName", "planetColor", "star_id", "fromMass","toMass", "fromDiameter", "toDiameter","fromLengthOfDay","toLengthOfDay" ,"fromSurfaceGravity", "toSurfaceGravity", "toTemperature", "fromTemperature"]);
 
         $data = $this->planet_model->selectPlanets($filters, $page, $page_size);
 
@@ -38,4 +39,18 @@ class PlanetController extends BaseController
         $data = $this->planet_model->selectPlanet($planet_id);      
         return $this->prepareOkResponse($response, $data);
     }
+
+    public function handleGetPlanetMoons(Request $request, Response $response, array $uri_args)
+    {
+        $planet_id = $uri_args['planet_id'];
+
+        
+        $moon_model = new moonModel();
+
+        $data = $this->planet_model->selectplanet($planet_id);
+        $data['moon'] =  $moon_model->selectMoonByPlanet($planet_id);
+
+        return $this->prepareOkResponse($response, $data);
+    }
+    
 }

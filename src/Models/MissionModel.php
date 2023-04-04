@@ -89,5 +89,9 @@ class MissionModel extends BaseModel  {
 
         $sql = $select . $from . $where . $group_by;
 
+        return $this->run($sql, [":mission_id"=> $mission_id])->fetch();
+
     }
+
+    
 }

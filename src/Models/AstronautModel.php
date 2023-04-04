@@ -87,4 +87,17 @@ class AstronautModel extends BaseModel  {
         
         return $this->run($sql, $query_values)->fetch();
     }
+
+    public function selectAstronautByMission(int $mission_id){
+        
+        $select = "SELECT s.*, a.*";
+        $from = " FROM astronaut AS a INNER JOIN mission_astronaut AS s ON s.astronaut_id = a.astronaut_id";
+        $where = " WHERE s.mission_id = :mission_id AND 1";
+        $group_by = "";
+
+        $sql = $select . $from . $where . $group_by;
+
+        return $this->run($sql, [":mission_id"=> $mission_id])->fetchAll();
+
+    }
 }

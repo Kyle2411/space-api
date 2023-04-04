@@ -6,6 +6,8 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Vanier\Api\Helpers\Validator;
 use Vanier\Api\Models\MissionModel;
+use Vanier\Api\Models\AstronautModel;
+use Vanier\Api\Models\rocketModel;
 use Vanier\Api\Helpers\ArrayHelper;
 
 class MissionController extends BaseController
@@ -39,4 +41,37 @@ class MissionController extends BaseController
         $data = $this->mission_model->selectMission($mission_id);
         return $this->prepareOkResponse($response, $data);
     }
+
+
+    public function handleGetMissionAstronauts(Request $request, Response $response, array $uri_args)
+    {
+        $mission_id = $uri_args['mission_id'];
+
+        
+        $astronaut_model = new astronautModel();
+
+        $data = $this->mission_model->selectMission($mission_id);
+        
+        $data['astronaut'] =  $astronaut_model->selectAstronautByMission($mission_id);
+
+        
+        return $this->prepareOkResponse($response, $data);
+    }
+
+    public function handleGetMissionRockets(Request $request, Response $response, array $uri_args)
+    {
+        $mission_id = $uri_args['mission_id'];
+
+        
+        $rocket_model = new rocketModel();
+
+        $data = $this->mission_model->selectMission($mission_id);
+        $newData = $rocket_model->selectRocket($data['rocket_id']);
+        $data['rocket'] =  $newData['rocket_name'];
+
+        
+        return $this->prepareOkResponse($response, $data);
+    }
+
+    
 }

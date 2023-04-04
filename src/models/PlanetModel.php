@@ -48,6 +48,59 @@ class PlanetModel extends BaseModel  {
                 $query_values[":color"] = $values;
             }
            
+        }   
+
+        if(isset($filters["fromMass"])) {
+            $where .= " AND p.mass >= :fromMass";
+            $query_values[":fromMass"] = $filters["fromMass"];
+        }
+
+        if(isset($filters["toMass"])) {
+            $where .= " AND p.mass <= :toMass";
+            $query_values[":toMass"] = $filters["toMass"];
+        }
+
+
+
+        if(isset($filters["fromDiameter"])) {
+            $where .= " AND p.diameter >= :fromDiameter";
+            $query_values[":fromDiameter"] = $filters["fromDiameter"];
+        }
+
+        if(isset($filters["toDiameter"])) {
+            $where .= " AND p.diameter <= :toDiameter";
+            $query_values[":toDiameter"] = $filters["toDiameter"];
+        
+        } 
+
+        if(isset($filters["fromLengthOfDay"])) {
+            $where .= " AND p.length_of_day <= :fromLengthOfDay";
+            $query_values[":fromLengthOfDay"] = $filters["fromLengthOfDay"];
+        }
+
+        if(isset($filters["toLengthOfDay"])) {
+            $where .= " AND p.length_of_day <= :toLengthOfDay";
+            $query_values[":toLengthOfDay"] = $filters["toLengthOfDay"];
+        }
+
+        if(isset($filters["fromSurfaceGravity"])) {
+            $where .= " AND p.surface_gravity <= :fromSurfaceGravity";
+            $query_values[":fromSurfaceGravity"] = $filters["fromSurfaceGravity"];
+        }
+
+        if(isset($filters["toSurfaceGravity"])) {
+            $where .= " AND p.surface_gravity <= :toSurfaceGravity";
+            $query_values[":toSurfaceGravity"] = $filters["toSurfaceGravity"];
+        }
+
+        if(isset($filters["fromTemperature"])) {
+            $where .= " AND p.temperature <= :fromTemperature";
+            $query_values[":fromTemperature"] = $filters["fromTemperature"];
+        }
+
+        if(isset($filters["toTemperature"])) {
+            $where .= " AND p.temperature <= :toTemperature";
+            $query_values[":toTemperature"] = $filters["toTemperature"];
         }
 
         if (isset($filters["star_id"])) {
@@ -61,6 +114,7 @@ class PlanetModel extends BaseModel  {
         $this->setPaginationOptions($page, $page_size);
         return $this->paginate($sql, $query_values);
     }
+
 
 
     public function selectPlanet(int $planet_id){

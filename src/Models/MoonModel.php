@@ -78,6 +78,21 @@ class MoonModel extends BaseModel  {
 
         $sql = $select . $from . $join . $where . $group_by;
 
-        return $this->run($sql, [":moon_id"=> $moon_id])->fetch();
+        return $this->run($sql, [":moon_id"=> $moon_id])->fetchAll();
     }
+
+    public function selectMoonByPlanet(int $planet_id){
+        
+        // Base Statement
+        $select = "SELECT m.*";
+        $from = " FROM moon AS m";
+        $where = " WHERE planet_id =:planet_id AND 1 ";
+        $group_by = "";
+
+        $sql = $select . $from . $where . $group_by;
+        
+        return $this->run($sql, [":planet_id"=> $planet_id])->fetchAll();
+    }
+
+    
 }
