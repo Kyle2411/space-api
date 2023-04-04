@@ -29,37 +29,44 @@ class MissionModel extends BaseModel  {
         $query_values = [];
 
         // Base Statement
-        $select = "SELECT p.*";
-        $from = " FROM $this->table_name AS p";
+        $select = "SELECT m.*";
+        $from = " FROM $this->table_name AS m";
+        $join = "";
         $where = " WHERE 1 ";
         $group_by = "";
 
         if (isset($filters["missionName"])) {
-            $where .= " AND p.mission_name LIKE CONCAT('%', :mission_name, '%')";
+            $where .= " AND m.mission_name LIKE CONCAT('%', :mission_name, '%')";
             $query_values[":mission_name"] = $filters["missionName"];
         }
 
         if (isset($filters["companyName"])) {
-            $where .= " AND p.company_name LIKE CONCAT('%', :company_name, '%')";
+            $where .= " AND m.company_name LIKE CONCAT('%', :company_name, '%')";
             $query_values[":company_name"] = $filters["companyName"];
         }
 
         if (isset($filters["fromMissionDate"])) {
-            $where .= " AND p.mission_date >= :fromMissionDate";
+            $where .= " AND m.mission_date >= :fromMissionDate";
             $query_values[":fromMissionDate"] = $filters["fromMissionDate"];
         }
 
         if (isset($filters["toMissionDate"])) {
-            $where .= " AND p.mission_date <= :toMissionDate";
+            $where .= " AND m.mission_date <= :toMissionDate";
             $query_values[":toMissionDate"] = $filters["toMissionDate"];
         }
 
         if (isset($filters["missionStatus"])) {
-            $where .= " AND p.mission_status LIKE CONCAT('%', :mission_status, '%')";
+            $where .= " AND m.mission_status LIKE CONCAT('%', :mission_status, '%')";
             $query_values[":mission_status"] = $filters["missionStatus"];
         }
 
-        $sql = $select . $from . $where . $group_by;
+        if (isset($filters["astronautId"])) {
+            $join .= " JOIN mission_astronaut AS ma ON ma.mission_id = m.mission_id JOIN astronaut AS a ON ma.astronaut_id = a.astronaut_id";
+            $where .= " AND a.astronaut_id = :astronautId";
+            $query_values[":astronautId"] = $filters["astronautId"];
+        }
+
+        $sql = $select . $from . $join . $where . $group_by;
 
         // Return Paginated Results
         $this->setPaginationOptions($page, $page_size);
