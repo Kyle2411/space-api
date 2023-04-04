@@ -67,7 +67,7 @@ class MissionController extends BaseController
 
         $data = $this->mission_model->selectMission($mission_id);
         $newData = $rocket_model->selectRocket($data['rocket_id']);
-        $data['rocket'] =  $newData['rocket_name'];
+        $data['rocket_name'] =  $newData[0]['rocket_name'];
 
         
         return $this->prepareOkResponse($response, $data);

@@ -24,17 +24,10 @@ global $app;
 // ROUTE: /
 $app->get('/', [RootController::class, 'handleGetRoot']); 
 
-$app->group('/planets', function (RouteCollectorProxy $group) {
-    $group->get('', [PlanetController::class, 'handleGetPlanets']);
-});
-$app->group('/planet', function (RouteCollectorProxy $group) {
-    $group->get('', [PlanetController::class, 'handleGetPlanet']);
-});
 
 $app->group('/exoMoon', function (RouteCollectorProxy $group) {
     $group->get('', [ExoMoonController::class, 'handleGetExoMoons']);
 });
-$app->get('/', [RootController::class, 'handleGetRoot']);
 
 $app->group('/stars', function (RouteCollectorProxy $group) {
     $group->get('', [StarController::class, 'handleGetStars']);
