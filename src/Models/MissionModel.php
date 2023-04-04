@@ -66,6 +66,12 @@ class MissionModel extends BaseModel  {
             $query_values[":astronautId"] = $filters["astronautId"];
         }
 
+        if (isset($filters["rocketId"])) {
+            $join .= " JOIN rocket as r ON m.rocket_id = r.rocket_id";
+            $where .= " AND r.rocket_id = :rocketId";
+            $query_values[":rocketId"] = $filters["rocketId"];
+        }
+
         $sql = $select . $from . $join . $where . $group_by;
 
         // Return Paginated Results
