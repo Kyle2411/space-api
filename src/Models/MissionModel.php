@@ -7,9 +7,19 @@ use Vanier\Api\Validations\Validator;
 use Vanier\Api\Models\BaseModel;
 use Vanier\Api\Helpers\ArrayHelper;
 
+/**
+ * Summary of MissionModel
+ */
 class MissionModel extends BaseModel  {
+    /**
+     * Summary of table_name
+     * @var string
+     */
     private $table_name = "mission";
 
+    /**
+     * Summary of __construct
+     */
     public function __construct() {
         parent::__construct();
     }
@@ -79,6 +89,11 @@ class MissionModel extends BaseModel  {
         return $this->paginate($sql, $query_values);
     }
 
+    /**
+     * Summary of selectMission
+     * @param int $mission_id
+     * @return mixed
+     */
     public function selectMission(int $mission_id){
         
         // Base Statement

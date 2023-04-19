@@ -2,6 +2,7 @@
 
 namespace Vanier\Api\Controllers;
 
+use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Vanier\Api\Helpers\Validator;
@@ -39,5 +40,17 @@ class ExoMoonController extends BaseController
         $data = $this->exoMoon_model->selectExoMoon($exomoon_id);
 
         return $this->prepareOkResponse($response, $data);
+    }
+
+    public function handleCreateExoMoon(Request $request, Response $response, array $uri_args)
+    {
+        $exomoon_id_data = $request->getParsedBody();
+
+        foreach ($exomoon_id_data as $exoMoon)
+        {
+            $this->exoMoon_model->createExoMoon($exoMoon);
+           
+        }
+        return $this->prepareOkResponse($response, $exomoon_id_data);
     }
 }

@@ -15,9 +15,20 @@ use Vanier\Api\Models\MissionModel;
 class AstronautController extends BaseController
 {
     // Model for Database Transactions
+    /**
+     * Summary of astronaut_model
+     * @var AstronautModel
+     */
     private AstronautModel $astronaut_model;
+    /**
+     * Summary of mission_model
+     * @var MissionModel
+     */
     private MissionModel $mission_model;
 
+    /**
+     * Summary of __construct
+     */
     public function __construct()
     {
         $this->astronaut_model = new AstronautModel();
