@@ -34,6 +34,20 @@ class MissionController extends BaseController
         return $this->prepareOkResponse($response, $data);
     }
 
+    public function handleCreateMissions(Request $request, Response $response, array $uri_args)
+    {
+        $missions_data = $request->getParsedBody();
+
+        foreach ($missions_data as $key => $mission) {
+
+                $missions_model = new MissionModel();
+                $missions_model->createMissions($mission);
+        }
+
+        return $this->prepareOkResponse($response, $missions_data);
+        
+    }
+
     public function handleGetMission(Request $request, Response $response, array $uri_args)
     {
         $mission_id = $uri_args['mission_id'];

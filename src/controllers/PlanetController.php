@@ -25,12 +25,13 @@ class PlanetController extends BaseController
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["page_size"]) ? $params["page_size"] : null;
 
-        $filters = ArrayHelper::filterKeys($params, ["planetName", "planetColor", "star_id", "fromMass","toMass", "fromDiameter", "toDiameter","fromLengthOfDay","toLengthOfDay" ,"fromSurfaceGravity", "toSurfaceGravity", "toTemperature", "fromTemperature"]);
+        $filters = ArrayHelper::filterKeys($params, ["planetName", "planetColor", "star_id", "fromMass","toMass", "fromDiameter", "toDiameter","fromLengthOfDay","toLengthOfDay" ,"fromSurfaceGravity", "toSurfaceGravity", "fromTemperature", "toTemperature"]);
 
         $data = $this->planet_model->selectPlanets($filters, $page, $page_size);
 
         return $this->prepareOkResponse($response, $data);
     }
+
 
     public function handleGetPlanet(Request $request, Response $response, array $uri_args)
     {

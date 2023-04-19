@@ -2,6 +2,7 @@
 
 namespace Vanier\Api\Controllers;
 
+use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Vanier\Api\Helpers\ArrayHelper;
@@ -32,6 +33,20 @@ class ExoPlanetController extends BaseController
         return $this->prepareOkResponse($response, $data);
     }
 
+    public function handleCreateExoPlanets(Request $request, Response $response, array $uri_args)
+    {
+        $exoPlanets_data = $request->getParsedBody();
+
+        foreach ($exoPlanets_data as $key => $actor) {
+
+                $exoPlanets_model = new ExoPlanetModel();
+                $exoPlanets_model->createExoPlanet($actor);
+        }
+
+        return $this->prepareOkResponse($response, $exoPlanets_data);
+        
+    }
+
     public function handleGetExoPlanet(Request $request, Response $response, array $uri_args)
     {
         $exoplanet_id = $uri_args['exoPlanet_id'];
@@ -50,7 +65,7 @@ class ExoPlanetController extends BaseController
         $data = $this->exoPlanet_model->selectExoPlanet($exoPlanet_id);
     
         $data['exoMoon'] = $exoMoon_model->selectExoMoonByExoPlanet($exoPlanet_id);
-       // var_dump($data);
+  
         return $this->prepareOkResponse($response, $data);
     }
 }

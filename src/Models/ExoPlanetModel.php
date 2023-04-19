@@ -78,4 +78,9 @@ class ExoPlanetModel extends BaseModel  {
 
         return $this->run($sql, [":exoplanet_id"=> $exoPlanet_id])->fetch();
     }
+
+    public function createExoPlanet(array $exoPlanet){
+        
+        return $this->insert($this->table_name, $exoPlanet);
+    }
 }

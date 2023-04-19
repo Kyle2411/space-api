@@ -93,5 +93,10 @@ class MissionModel extends BaseModel  {
 
     }
 
+    public function createMissions(array $mission){
+        
+        return $this->insert($this->table_name, $mission);
+    }
+
     
 }
