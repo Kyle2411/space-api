@@ -3,9 +3,11 @@
 namespace Vanier\Api\Models;
 
 use Slim\Exception\HttpBadRequestException;
-use Vanier\Api\Validations\Validator;
+use Vanier\Api\Helpers\Validator;
 use Vanier\Api\Models\BaseModel;
 use Vanier\Api\Helpers\ArrayHelper;
+use Vanier\Api\Helpers\Validator as HelpersValidator;
+
 
 /**
  * Summary of ExoMoonModel
@@ -25,9 +27,36 @@ class ExoMoonModel extends BaseModel  {
      * @param array $actor
      * @return bool|string
      */
-    public function createExoMoon(array $exoMoon)
+    public function createExoMoon(array $data)
     {
-        return $this->insert($this->table_name, $exoMoon);
+        $rules["exomoon_name"] = ["required", ["lengthBetween", 1, 64]];
+        $rules["discovery_method"] =  ["required", ["in", ["Radial Velocity","Imaging","Pulsation Timing Variations","Transit","Eclipse Timing Variations","Microlensing","Transit Timing Variations","Pulsation Timing","Disk Kinematics","Orbital Brightness Modulation"]]];
+        $rules["orbital_period_days"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
+        $rules["mass"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
+
+        // for each exoMoon
+        foreach ($data as $exoMoon) {
+            $validator = new Validator($exoMoon);
+            $validator->mapFieldsRules($rules);
+
+            // If Data Is valid...
+            if ($validator->validate()) {
+                // Get Fields from Data
+                $fields = ArrayHelper::filterKeys($exoMoon, ["exomoon_name", "discovery_method", "orbital_period_days", "mass"]);
+                
+                // Insert Rocket Into Database
+                $last_id = $this->insert($this->table_name, $fields);
+
+                if ($last_id != 0) {
+                    $results["row_inserted"][] = $this->selectExoMoon($last_id);
+                } else {
+                    $results["rows_missing"][] = [...$exoMoon, "errors" => "An error occured while inserting row."];
+                }
+            } else {
+                $results["rows_failed"][] = [...$exoMoon, "errors" => $validator->errors()];
+            }
+        }
+        return $results;
     }
 
     /**
@@ -90,7 +119,7 @@ class ExoMoonModel extends BaseModel  {
         // Base Statement
         $select = "SELECT exM.*";
         $from = " FROM $this->table_name AS exM";
-        $where = " WHERE exomoon_id =:exomoon_id AND 1 ";
+        $where = " WHERE exM.exomoon_id =:exomoon_id AND 1 ";
         $group_by = "";
 
         $sql = $select . $from . $where . $group_by;
