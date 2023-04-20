@@ -30,9 +30,7 @@ $app->group('/stars', function (RouteCollectorProxy $group) {
     $group->get('/{star_id}', [StarController::class, 'handleGetStar']);
     $group->get('/{star_id}/planets', [StarController::class, 'handleGetStarPlanets']);
     $group->get('/{star_id}/exoPlanets', [StarController::class, 'handleGetStarExoPlanets']);
-    $group->post('', [StarController::class, 'handleCreateStar']);
-    $group->patch('', [StarController::class, 'handleUpdateStar']);
-    $group->delete('', [StarController::class, 'handleDeleteStar']);
+    $group->post('', [StarController::class, 'handlePostStars']);
 });
 
 // Planet
@@ -68,6 +66,7 @@ $app->group('/moons', function (RouteCollectorProxy $group){
 $app->group('/asteroids', function (RouteCollectorProxy $group) {
     $group->get('', [AsteroidController::class, 'handleGetAsteroids']);
     $group->get('/{asteroid_id}', [AsteroidController::class, 'handleGetAsteroid']);
+    $group->post('', [AsteroidController::class, 'handlePostAsteroids']);
 });
 
 // Missions

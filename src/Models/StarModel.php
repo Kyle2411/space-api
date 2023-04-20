@@ -2,8 +2,7 @@
 
 namespace Vanier\Api\Models;
 
-use Slim\Exception\HttpBadRequestException;
-use Vanier\Api\Validations\Validator;
+use Vanier\Api\Helpers\Validator;
 use Vanier\Api\Models\BaseModel;
 use Vanier\Api\Helpers\ArrayHelper;
 
@@ -93,5 +92,43 @@ class StarModel extends BaseModel  {
         $sql = $select . $from . $where . $group_by;
 
         return $this->run($sql, [":star_id"=> $star_id])->fetch();
+    }
+
+    /**
+     * Insert Stars Into Database
+     * @param array $data Stars to Insert
+     * @return array Rows Inserted, Failed and/or Missing
+     */
+    public function insertStars(array $data) {
+        $rules["star_name"] = ["required", ["lengthBetween", 1, 64]];
+        $rules["effective_temperature"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
+        $rules["radius"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["mass"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["surface_gravity"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+
+        // For Each Rocket...
+        foreach($data as $star) {
+            $validator = new Validator($star);
+            $validator->mapFieldsRules($rules);
+
+            // If Data Is valid...
+            if ($validator->validate()) {
+                // Get Fields from Data
+                $fields = ArrayHelper::filterKeys($star, ["star_name", "effective_temperature", "radius", "mass", "surface_gravity"]);
+                
+                // Insert Star Into Database
+                $last_id = $this->insert($this->table_name, $fields);
+
+                if ($last_id != 0) {
+                    $results["row_inserted"][] = $this->selectStar($last_id);
+                } else {
+                    $results["rows_missing"][] = [...$star, "errors" => "An error occured while inserting row."];
+                }
+            } else {
+                $results["rows_failed"][] = [...$star, "errors" => $validator->errors()];
+            }
+        }
+
+        return $results;
     }
 }
