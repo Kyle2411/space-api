@@ -3,7 +3,7 @@
 namespace Vanier\Api\Models;
 
 use Slim\Exception\HttpBadRequestException;
-use Vanier\Api\Validations\Validator;
+use Vanier\Api\Helpers\Validator;
 use Vanier\Api\Models\BaseModel;
 use Vanier\Api\Helpers\ArrayHelper;
 
@@ -128,6 +128,50 @@ class PlanetModel extends BaseModel  {
         $sql = $select . $from . $where . $group_by;
 
         return $this->run($sql, [":planet_id"=> $planet_id])->fetch();
+    }
+
+     /**
+     * Insert Planets Into Database
+     * @param array $data Planets to Insert
+     * @return array Rows Inserted, Failed and/or Missing
+     */
+    public function insertPlanets(array $data) {
+        $rules["star_id"] = ["required", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["planet_name"] = ["required", ["lengthBetween", 1, 64]];
+        $rules["color"] = ["required", ["lengthBetween", 1, 64]];
+        $rules["mass"] = ["required", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["diameter"] = ["required", "numeric", ["min", 0], ["max", 9999]];
+        $rules["length_of_day"] = ["required", "numeric", ["min", 0], ["max", 9999]];
+        $rules["orbital_period"] = ["required", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["surface_gravity"] = ["required", "numeric", ["min", 0], ["max", 9999]];
+        $rules["temperature"] = ["required", "numeric", ["min", 0], ["max", 9999]];
+        
+       
+
+        // For Each Rocket...
+        foreach($data as $planet) {
+            $validator = new Validator($planet);
+            $validator->mapFieldsRules($rules);
+
+            // If Data Is valid...
+            if ($validator->validate()) {
+                // Get Fields from Data
+                $fields = ArrayHelper::filterKeys($planet, ["star_id", "planet_name", "color", "mass", "diameter", "length_of_day", "orbital_period","surface_gravity", "temperature", ]);
+                
+                // Insert Star Into Database
+                $last_id = $this->insert($this->table_name, $fields);
+
+                if ($last_id != 0) {
+                    $results["row_inserted"][] = $this->selectPlanet($last_id);
+                } else {
+                    $results["rows_missing"][] = [...$planet, "errors" => "An error occured while inserting row."];
+                }
+            } else {
+                $results["rows_failed"][] = [...$planet, "errors" => $validator->errors()];
+            }
+        }
+
+        return $results;
     }
     
 }

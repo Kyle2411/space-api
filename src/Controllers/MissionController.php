@@ -4,7 +4,9 @@ namespace Vanier\Api\Controllers;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Vanier\Api\Helpers\Validator;
+use Slim\Exception\HttpException;
+use Vanier\Api\Exceptions\HttpBadRequestException;
+use Vanier\Api\Exceptions\HttpUnprocessableContentException;
 use Vanier\Api\Models\MissionModel;
 use Vanier\Api\Models\AstronautModel;
 use Vanier\Api\Models\rocketModel;
@@ -34,18 +36,34 @@ class MissionController extends BaseController
         return $this->prepareOkResponse($response, $data);
     }
 
-    public function handleCreateMissions(Request $request, Response $response, array $uri_args)
-    {
-        $missions_data = $request->getParsedBody();
+    public function handlePostMissions(Request $request, Response $response) {
+        // Get Request Body
+        $body = $request->getParsedBody();
 
-        foreach ($missions_data as $key => $mission) {
+        try {
+            if (!is_array($body) || empty($body)) {
+               $exception = new HttpBadRequestException($request);
+               $exception->setDescription("Request body is either empty or is not an array.");
+               throw $exception;
+            }
 
-                $missions_model = new MissionModel();
-                $missions_model->createMissions($mission);
+            $results = $this->mission_model->insertMissions($body);
+
+            // If Result Contains Missing or Failed Rows...
+            if (isset($results["rows_missing"])) {
+                $exception = new HttpBadRequestException($request);
+                $exception->setDescription(json_encode($results));
+                throw $exception;
+            } else if (isset($results["rows_failed"])) {
+                $exception = new HttpUnprocessableContentException($request);
+                $exception->setDescription(json_encode($results));
+                throw $exception;
+            }
+
+        } catch (HttpException $e) {
+            return $this->prepareErrorResponse($e);
         }
-
-        return $this->prepareOkResponse($response, $missions_data);
-        
+        return $this->prepareSuccessResponse(201, $results);
     }
 
     public function handleGetMission(Request $request, Response $response, array $uri_args)

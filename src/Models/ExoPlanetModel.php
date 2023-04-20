@@ -3,7 +3,7 @@
 namespace Vanier\Api\Models;
 
 use Slim\Exception\HttpBadRequestException;
-use Vanier\Api\Validations\Validator;
+use Vanier\Api\Helpers\Validator;
 use Vanier\Api\Models\BaseModel;
 use Vanier\Api\Helpers\ArrayHelper;
 
@@ -79,8 +79,42 @@ class ExoPlanetModel extends BaseModel  {
         return $this->run($sql, [":exoplanet_id"=> $exoPlanet_id])->fetch();
     }
 
-    public function createExoPlanet(array $exoPlanet){
-        
-        return $this->insert($this->table_name, $exoPlanet);
+    /**
+     * Insert ExoPlanets Into Database
+     * @param array $data ExoPlanets to Insert
+     * @return array Rows Inserted, Failed and/or Missing
+     */
+    public function insertExoPlanets(array $data) {
+        $rules["star_id"] = ["required", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["exoplanet_name"] = ["required", ["lengthBetween", 1, 64]];
+        $rules["discovery_method"] = ["optional", ["in", ["Radial Velocity", "Imaging", "Pulsation Timing Variations", "Transit", "Eclipse Timing Variations", "Microlensing", "Transit Timing Variations", "Pulsation Timing", "Disk Kinematics", "Orbital Brightness Modulation"]]];
+        $rules["discovery_year"] = ["required", "numeric", ["min", 0], ["max", 9999]];
+        $rules["orbital_period_days"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["mass"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+
+        // For Each Rocket...
+        foreach($data as $exoPlanet) {
+            $validator = new Validator($exoPlanet);
+            $validator->mapFieldsRules($rules);
+
+            // If Data Is valid...
+            if ($validator->validate()) {
+                // Get Fields from Data
+                $fields = ArrayHelper::filterKeys($exoPlanet, ["star_id", "exoplanet_name", "discovery_method", "discovery_year", "orbital_period_days", "mass"]);
+                
+                // Insert Star Into Database
+                $last_id = $this->insert($this->table_name, $fields);
+
+                if ($last_id != 0) {
+                    $results["row_inserted"][] = $this->selectExoPlanet($last_id);
+                } else {
+                    $results["rows_missing"][] = [...$exoPlanet, "errors" => "An error occured while inserting row."];
+                }
+            } else {
+                $results["rows_failed"][] = [...$exoPlanet, "errors" => $validator->errors()];
+            }
+        }
+
+        return $results;
     }
 }

@@ -6,7 +6,9 @@ use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Vanier\Api\Helpers\ArrayHelper;
-use Vanier\Api\Helpers\Validator;
+use Slim\Exception\HttpException;
+use Vanier\Api\Exceptions\HttpBadRequestException;
+use Vanier\Api\Exceptions\HttpUnprocessableContentException;
 use Vanier\Api\Models\ExoPlanetModel;
 use Vanier\Api\Models\ExoMoonModel;
 
@@ -33,18 +35,34 @@ class ExoPlanetController extends BaseController
         return $this->prepareOkResponse($response, $data);
     }
 
-    public function handleCreateExoPlanets(Request $request, Response $response, array $uri_args)
-    {
-        $exoPlanets_data = $request->getParsedBody();
+    public function handlePostExoPlanets(Request $request, Response $response) {
+        // Get Request Body
+        $body = $request->getParsedBody();
 
-        foreach ($exoPlanets_data as $key => $actor) {
+        try {
+            if (!is_array($body) || empty($body)) {
+               $exception = new HttpBadRequestException($request);
+               $exception->setDescription("Request body is either empty or is not an array.");
+               throw $exception;
+            }
 
-                $exoPlanets_model = new ExoPlanetModel();
-                $exoPlanets_model->createExoPlanet($actor);
+            $results = $this->exoPlanet_model->insertExoPlanets($body);
+
+            // If Result Contains Missing or Failed Rows...
+            if (isset($results["rows_missing"])) {
+                $exception = new HttpBadRequestException($request);
+                $exception->setDescription(json_encode($results));
+                throw $exception;
+            } else if (isset($results["rows_failed"])) {
+                $exception = new HttpUnprocessableContentException($request);
+                $exception->setDescription(json_encode($results));
+                throw $exception;
+            }
+
+        } catch (HttpException $e) {
+            return $this->prepareErrorResponse($e);
         }
-
-        return $this->prepareOkResponse($response, $exoPlanets_data);
-        
+        return $this->prepareSuccessResponse(201, $results);
     }
 
     public function handleGetExoPlanet(Request $request, Response $response, array $uri_args)

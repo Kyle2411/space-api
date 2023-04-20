@@ -3,8 +3,8 @@
 namespace Vanier\Api\Models;
 
 use Slim\Exception\HttpBadRequestException;
-use Vanier\Api\Validations\Validator;
 use Vanier\Api\Models\BaseModel;
+use Vanier\Api\Helpers\Validator;
 use Vanier\Api\Helpers\ArrayHelper;
 
 /**
@@ -108,9 +108,44 @@ class MissionModel extends BaseModel  {
 
     }
 
-    public function createMissions(array $mission){
-        
-        return $this->insert($this->table_name, $mission);
+    /**
+     * Insert Missions Into Database
+     * @param array $data Missions to Insert
+     * @return array Rows Inserted, Failed and/or Missing
+     */
+    public function insertMissions(array $data) {
+        $rules["rocket_id"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["mission_name"] = ["required", ["lengthBetween", 1, 128]];
+        $rules["company_name"] = ["required", ["lengthBetween", 1, 64]];
+        $rules["mission_location"] = ["required", ["lengthBetween", 1, 128]];
+        $rules["mission_date"] = ["required", ["dateFormat", "Y-m-d" ]];
+        $rules["mission_time"] = ["optional", ["instanceOf", new \DateTime()]];
+        $rules["mission_status"] = ["optional", ["in", ["Success", "Failure", "Partial Failure", "Prelaunch Failure"]]];
+
+        // For Each Rocket...
+        foreach($data as $mission) {
+            $validator = new Validator($mission);
+            $validator->mapFieldsRules($rules);
+
+            // If Data Is valid...
+            if ($validator->validate()) {
+                // Get Fields from Data
+                $fields = ArrayHelper::filterKeys($mission, ["rocket_id", "mission_name", "company_name", "mission_location", "mission_date", "mission_time", "mission_status"]);
+                
+                // Insert Star Into Database
+                $last_id = $this->insert($this->table_name, $fields);
+
+                if ($last_id != 0) {
+                    $results["row_inserted"][] = $this->selectMission($last_id);
+                } else {
+                    $results["rows_missing"][] = [...$mission, "errors" => "An error occured while inserting row."];
+                }
+            } else {
+                $results["rows_failed"][] = [...$mission, "errors" => $validator->errors()];
+            }
+        }
+
+        return $results;
     }
 
     
