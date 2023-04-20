@@ -2,8 +2,13 @@
 
 namespace Vanier\Api\Controllers;
 
-use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
+use Slim\Exception\HttpException;
+use Vanier\Api\Exceptions\HttpBadRequestException;
+use Vanier\Api\Exceptions\HttpUnprocessableContentException;
 use Vanier\Api\Helpers\Validator;
 use Vanier\Api\Helpers\ArrayHelper;
 use Vanier\Api\Models\RocketModel;
@@ -93,5 +98,45 @@ class RocketController extends BaseController
         $result["missions"] = $this->mission_model->selectMissions($filters, $page, $page_size);
 
         return $this->prepareOkResponse($response, $result ? $result : [], empty($result) ? 204 : 200);
+    }
+
+    /**
+     * Handle Rockets POST Request
+     * @param Request $request Client Request
+     * @param Response $response Server Response
+     * @return Response Altered Server Response
+     */
+    public function handlePostRockets(RequestInterface $request, ResponseInterface $response) {
+        // Get Request Body
+        $body = $request->getParsedBody();
+
+        try {
+            if (!is_array($body) || empty($body)) {
+               $exception = new HttpBadRequestException($request);
+               $exception->setDescription("Request body is either empty or is not an array.");
+               
+               throw $exception;
+            }
+
+            $results = $this->rocket_model->insertRockets($body);
+
+            // If Result Contains Missing or Failed Rows...
+            if (isset($results["rows_missing"])) {
+                $exception = new HttpBadRequestException($request);
+                $exception->setDescription(json_encode($results));
+               
+                throw $exception;
+            } else if (isset($results["rows_failed"])) {
+                $exception = new HttpUnprocessableContentException($request);
+                $exception->setDescription(json_encode($results));
+               
+                throw $exception;
+            }
+
+        } catch (HttpException $e) {
+            return $this->prepareErrorResponse($e);
+        }
+
+        return $this->prepareSuccessResponse(201, $results);
     }
 }

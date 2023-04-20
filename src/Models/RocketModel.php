@@ -3,9 +3,10 @@
 namespace Vanier\Api\Models;
 
 use Slim\Exception\HttpBadRequestException;
-use Vanier\Api\Validations\Validator;
+use Vanier\Api\Helpers\Validator;
 use Vanier\Api\Models\BaseModel;
 use Vanier\Api\Helpers\ArrayHelper;
+use Vanier\Api\Helpers\Validator as HelpersValidator;
 
 class RocketModel extends BaseModel  {
     private $table_name = "rocket";
@@ -106,5 +107,42 @@ class RocketModel extends BaseModel  {
         return $this->run($sql, $query_values)->fetchAll();
     }
 
+    /**
+     * Insert Rockets Into Database
+     * @param array $data Rockets to Insert
+     * @return array Rows Inserted, Failed and/or Missing
+     */
+    public function insertRockets(array $data) {
+        $rules["rocket_name"] = ["required", ["lengthBetween", 1, 64]];
+        $rules["company_name"] = ["required", ["lengthBetween", 1, 64]];
+        $rules["rocket_status"] = ["required", ["in", ["Active", "Retired", "Planned"]]];
+        $rules["rocket_thrust"] = ["optional", "integer", ["min", 0], ["max", 9999999]];
+        $rules["rocket_height"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
+        $rules["rocket_price"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
 
+        // For Each Rocket...
+        foreach($data as $rocket) {
+            $validator = new Validator($rocket);
+            $validator->mapFieldsRules($rules);
+
+            // If Data Is valid...
+            if ($validator->validate()) {
+                // Get Fields from Data
+                $fields = ArrayHelper::filterKeys($rocket, ["rocket_name", "company_name", "rocket_status", "rocket_thrust", "rocket_height", "rocket_price"]);
+                
+                // Insert Rocket Into Database
+                $last_id = $this->insert($this->table_name, $fields);
+
+                if ($last_id != 0) {
+                    $results["row_inserted"][] = $this->selectRocket($last_id);
+                } else {
+                    $results["rows_missing"][] = [...$rocket, "errors" => "An error occured while inserting row."];
+                }
+            } else {
+                $results["rows_failed"][] = [...$rocket, "errors" => $validator->errors()];
+            }
+        }
+
+        return $results;
+    }
 }
