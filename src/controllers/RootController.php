@@ -13,6 +13,7 @@ class RootController extends BaseController
 
         $data = array(
             'about' => 'Welcome to Cosmic Cloud, this is a Web API that provides a detailed aspects about the solar system',
+            'version' => 'Note to self ill add later',
             'resources' => ['Planet ' => ['Description' => 'A planet is a celestial object in a solar system that orbits a star and has sufficient mass to generate its own gravitational force.', 
                                             'Uri' => $host_name.'/space-api/planets'], 
                             'ExoPlanet' => ['Description' => 'An ExoPlanet, also known as an extrasolar planet, is a planet that orbits a star outside of our solar system.', 
