@@ -4,7 +4,9 @@ namespace Vanier\Api\Controllers;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Vanier\Api\Helpers\Validator;
+use Slim\Exception\HttpException;
+use Vanier\Api\Exceptions\HttpBadRequestException;
+use Vanier\Api\Exceptions\HttpUnprocessableContentException;
 use Vanier\Api\Helpers\ArrayHelper;
 use Vanier\Api\Models\PlanetModel;
 use Vanier\Api\Models\ExoPlanetModel;
@@ -12,7 +14,6 @@ use Vanier\Api\Models\StarModel;
 
 class StarController extends BaseController
 {
-    // Model for Database Transactions
     private StarModel $star_model;
 
     public function __construct()
@@ -82,5 +83,35 @@ class StarController extends BaseController
         $data['exoPlanets'] =  $exoPlanet_model->selectExoPlanets($filters, $page, $page_size);
 
         return $this->prepareOkResponse($response, $data);
+    }
+
+    public function handlePostStars(Request $request, Response $response) {
+        // Get Request Body
+        $body = $request->getParsedBody();
+
+        try {
+            if (!is_array($body) || empty($body)) {
+               $exception = new HttpBadRequestException($request);
+               $exception->setDescription("Request body is either empty or is not an array.");
+               throw $exception;
+            }
+
+            $results = $this->star_model->insertStars($body);
+
+            // If Result Contains Missing or Failed Rows...
+            if (isset($results["rows_missing"])) {
+                $exception = new HttpBadRequestException($request);
+                $exception->setDescription(json_encode($results));
+                throw $exception;
+            } else if (isset($results["rows_failed"])) {
+                $exception = new HttpUnprocessableContentException($request);
+                $exception->setDescription(json_encode($results));
+                throw $exception;
+            }
+
+        } catch (HttpException $e) {
+            return $this->prepareErrorResponse($e);
+        }
+        return $this->prepareSuccessResponse(201, $results);
     }
 }
