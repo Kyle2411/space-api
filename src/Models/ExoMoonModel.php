@@ -30,6 +30,7 @@ class ExoMoonModel extends BaseModel  {
     public function createExoMoon(array $data)
     {
         $rules["exomoon_name"] = ["required", ["lengthBetween", 1, 64]];
+        $rules["exoplanet_id"] = ["required", "numeric", ["min", 0], ["max", 999999]];
         $rules["discovery_method"] =  ["required", ["in", ["Radial Velocity","Imaging","Pulsation Timing Variations","Transit","Eclipse Timing Variations","Microlensing","Transit Timing Variations","Pulsation Timing","Disk Kinematics","Orbital Brightness Modulation"]]];
         $rules["orbital_period_days"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
         $rules["mass"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
@@ -42,7 +43,7 @@ class ExoMoonModel extends BaseModel  {
             // If Data Is valid...
             if ($validator->validate()) {
                 // Get Fields from Data
-                $fields = ArrayHelper::filterKeys($exoMoon, ["exomoon_name", "discovery_method", "orbital_period_days", "mass"]);
+                $fields = ArrayHelper::filterKeys($exoMoon, ["exomoon_name", "exoplanet_id", "discovery_method", "orbital_period_days", "mass"]);
                 
                 // Insert Rocket Into Database
                 $last_id = $this->insert($this->table_name, $fields);

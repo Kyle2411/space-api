@@ -50,8 +50,8 @@ class ExoMoonController extends BaseController
         $body = $request->getParsedBody();
 
         try {
-            if (!is_array($body) || empty($body)) {
-                $exception = new HttpBadRequestException($body);
+            if (!is_array($body) || empty($body) || count(array_filter(array_keys($body), 'is_string')) > 0) {
+                $exception = new HttpBadRequestException($request);
                 $exception->setDescription("The body is either empty or not in the proper format");
 
                 throw $exception;
