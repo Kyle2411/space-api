@@ -119,7 +119,7 @@ class MissionModel extends BaseModel  {
         $rules["company_name"] = ["required", ["lengthBetween", 1, 64]];
         $rules["mission_location"] = ["required", ["lengthBetween", 1, 128]];
         $rules["mission_date"] = ["required", ["dateFormat", "Y-m-d" ]];
-        $rules["mission_time"] = ["optional", ["instanceOf", new \DateTime()]];
+        $rules["mission_time"] = ["optional", ["regex", '/([A-Za-z0-9]+(:[A-Za-z0-9]+)+)/i']];
         $rules["mission_status"] = ["optional", ["in", ["Success", "Failure", "Partial Failure", "Prelaunch Failure"]]];
 
         // For Each Rocket...
