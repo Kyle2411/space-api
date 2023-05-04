@@ -55,4 +55,16 @@ class BaseController
             // Set Status Code to 406 Not Acceptable
             return $response->withStatus($exception->getCode())->withAddedHeader("Content-Type", APP_MEDIA_TYPE_JSON);
     }
+
+    protected function LogInfo(){
+        // $logger = ;
+        // $db_logger = ;
+    }
+
+    public function prepareResponse(Response $response, $in_payload, $status_code) {
+        $payload = json_encode($in_payload);
+        $response->getBody()->write($payload);
+        return $response->withHeader('Content-Type', APP_MEDIA_TYPE_JSON)
+                        ->withStatus($status_code);
+    }
 }

@@ -3,9 +3,11 @@
 namespace Vanier\Api\Models;
 
 use Slim\Exception\HttpBadRequestException;
+use Vanier\Api\Exceptions\HttpUnprocessableContentException;
 use Vanier\Api\Helpers\Validator;
 use Vanier\Api\Models\BaseModel;
 use Vanier\Api\Helpers\ArrayHelper;
+use Vanier\Api\Models\StarModel;
 
 class PlanetModel extends BaseModel  {
     private $table_name = "planet";
@@ -146,12 +148,28 @@ class PlanetModel extends BaseModel  {
         $rules["surface_gravity"] = ["required", "numeric", ["min", 0], ["max", 9999]];
         $rules["temperature"] = ["required", "numeric", ["min", 0], ["max", 9999]];
         
-       
-
+        $star = new StarModel();
+        $planetModel = new PlanetModel();
+        $methodName = "selectPlanets";
         // For Each Rocket...
         foreach($data as $planet) {
+
             $validator = new Validator($planet);
             $validator->mapFieldsRules($rules);
+           
+           $starData =  $star->selectStar($planet["star_id"]);
+            
+            $namerChecker = $this->checkExistingName($planet['planet_name'], $methodName, $planetModel, 'planet_name');
+
+            if($namerChecker)
+            {
+                $results["rows_failed"][] = ["planet_name: " . $planet["planet_name"] . " already exist"];
+            }
+            if($starData  == false){
+
+                $results["rows_failed"][] = ["star_id: " . $planet["star_id"] . " does not exist"];
+            }
+            else{
 
             // If Data Is valid...
             if ($validator->validate()) {
@@ -170,6 +188,7 @@ class PlanetModel extends BaseModel  {
                 $results["rows_failed"][] = [...$planet, "errors" => $validator->errors()];
             }
         }
+    }
 
         return $results;
     }

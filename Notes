@@ -1,0 +1,13 @@
+Instead of username and passwords we use session credentials (token based security layer) to identifier client applications
+
+- Work Flow
+
+1) Client needs to request access and create an account 
+   - contact info
+   - credentials
+     - username
+     - email
+     - password
+
+2) Request a token
+    - credentials

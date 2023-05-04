@@ -349,4 +349,20 @@ class BaseModel
         $this->current_page = $current_page;
         $this->records_per_page = $records_per_page;
     }
+
+    public function checkExistingName($object_name, $methodName, $model, $keyName)
+    {
+        $object = $model->$methodName();
+        //var_dump($object);
+        foreach($object as $key => $myLey)
+        {
+            var_dump($myLey[$keyName]);
+            // if($key[$keyName] == $object_name)
+            // {
+            //     return true;
+            // }
+        }
+
+        // return false;
+    }
 }

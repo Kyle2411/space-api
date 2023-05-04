@@ -1,7 +1,8 @@
 <?php
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Slim\Factory\AppFactory;
+
+use Monolog\Handler\StreamHandler;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteCollectorProxy;
 use Vanier\Api\Controllers\ExoMoonController;
 use Vanier\Api\Controllers\RootController;
@@ -13,16 +14,31 @@ use Vanier\Api\Controllers\AstronautController;
 use Vanier\Api\Controllers\MoonController;
 use Vanier\Api\Controllers\MissionController;
 use Vanier\Api\Controllers\RocketController;
+use Monolog\Logger;
+use Vanier\Api\Controllers\AuthenticationController;
 
 // Import the app instance into this file's scope.
 global $app;
+
 
 // NOTE: Add your app routes here.
 // The callbacks must be implemented in a controller class.
 // The Vanier\Api must be used as namespace prefix.
 
 // ROUTE: /
-$app->get('/', [RootController::class, 'handleGetRoot']); 
+
+//--Authentication Routes
+
+//Account
+$app->group('/account', function (RouteCollectorProxy $group) {
+    $group->post('', [AuthenticationController::class, 'handleCreateUserAccount']);
+});
+
+//Token
+$app->group('/token', function (RouteCollectorProxy $group) {
+        $group->post('', [AuthenticationController::class, 'handleGetToken']);
+});
+
 
 // Stars
 $app->group('/stars', function (RouteCollectorProxy $group) {
