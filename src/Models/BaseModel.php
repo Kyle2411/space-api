@@ -353,16 +353,17 @@ class BaseModel
     public function checkExistingName($object_name, $methodName, $model, $keyName)
     {
         $object = $model->$methodName();
-        //var_dump($object);
         foreach($object as $key => $myLey)
         {
-            var_dump($myLey[$keyName]);
-            // if($key[$keyName] == $object_name)
-            // {
-            //     return true;
-            // }
+
+            if($myLey[$keyName] == $object_name)
+            {
+                
+                return false;
+                
+            }
         }
 
-        // return false;
+         return true;
     }
 }

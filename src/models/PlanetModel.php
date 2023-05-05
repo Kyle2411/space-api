@@ -117,6 +117,21 @@ class PlanetModel extends BaseModel  {
         return $this->paginate($sql, $query_values);
     }
 
+    public function selectPlanetsSimple() {
+        // Set Page and Page Size Default Values If Params Null
+
+        // Base Statement
+        $select = "SELECT p.*";
+        $from = " FROM $this->table_name AS p";
+        $where = " WHERE 1 ";
+        $group_by = "";
+
+
+        $sql = $select . $from . $where . $group_by;
+
+        return $this->run($sql);
+    }
+
 
 
     public function selectPlanet(int $planet_id){
@@ -138,8 +153,57 @@ class PlanetModel extends BaseModel  {
      * @return array Rows Inserted, Failed and/or Missing
      */
     public function insertPlanets(array $data) {
-        $rules["star_id"] = ["required", "numeric", ["min", 0], ["max", 99999999]];
-        $rules["planet_name"] = ["required", ["lengthBetween", 1, 64]];
+
+        //Custom Star ID validator
+        Validator::addRule('starExists', function($field, $value, array $params, array $fields) {
+            $min = $params[0] ?? null;
+            $max = $params[1] ?? null;
+        
+            if (!is_numeric($value) || ($min !== null && $value < $min) || ($max !== null && $value > $max)) {
+                return false;
+            }
+        
+            $star = new StarModel();
+            $starData = $star->selectStar($value);
+            if(!$starData) {
+                return false;
+            }
+        
+            return true;
+        }, 'does not exist');
+        
+
+
+
+        //Custom Planet Name validator
+        Validator::addRule('planet_Name_Exists', function($field, $value, array $params, array $fields) {
+            $planetModel = new PlanetModel();
+            $methodName = "selectPlanetsSimple";
+        
+            $namerChecker = $this->checkExistingName($value, $methodName, $planetModel, 'planet_name');
+            if(!$namerChecker) {
+                return false;
+            }
+        
+            $minLength = isset($params[0]) ? intval($params[0]) : null;
+            $maxLength = isset($params[1]) ? intval($params[1]) : null;
+        
+            if (!is_null($minLength) && strlen($value) < $minLength) {
+                return false;
+            }
+        
+            if (!is_null($maxLength) && strlen($value) > $maxLength) {
+                return false;
+            }
+        
+            return true;
+        }, 'already exists');
+        
+    
+
+
+        //$rules["star_id"] = ["required", "numeric", ["min", 0], ["max", 99999999]];
+        //$rules["planet_name"] = ["required", ["lengthBetween", 1, 64]];
         $rules["color"] = ["required", ["lengthBetween", 1, 64]];
         $rules["mass"] = ["required", "numeric", ["min", 0], ["max", 99999999]];
         $rules["diameter"] = ["required", "numeric", ["min", 0], ["max", 9999]];
@@ -148,28 +212,24 @@ class PlanetModel extends BaseModel  {
         $rules["surface_gravity"] = ["required", "numeric", ["min", 0], ["max", 9999]];
         $rules["temperature"] = ["required", "numeric", ["min", 0], ["max", 9999]];
         
-        $star = new StarModel();
-        $planetModel = new PlanetModel();
-        $methodName = "selectPlanets";
+        
         // For Each Rocket...
         foreach($data as $planet) {
 
+            $extra_rules = [
+                "star_id" => [
+                    "required",
+                    ["numeric", "min:0", "max:99999999"],
+                    ["starExists"]
+                ],
+                "planet_name" => ["required", ["lengthBetween", 1, 64],["planet_Name_Exists", $planet]]
+            ];
+        
+            $rules = array_merge($rules, $extra_rules);
+
             $validator = new Validator($planet);
             $validator->mapFieldsRules($rules);
-           
-           $starData =  $star->selectStar($planet["star_id"]);
-            
-            $namerChecker = $this->checkExistingName($planet['planet_name'], $methodName, $planetModel, 'planet_name');
-
-            if($namerChecker)
-            {
-                $results["rows_failed"][] = ["planet_name: " . $planet["planet_name"] . " already exist"];
-            }
-            if($starData  == false){
-
-                $results["rows_failed"][] = ["star_id: " . $planet["star_id"] . " does not exist"];
-            }
-            else{
+  
 
             // If Data Is valid...
             if ($validator->validate()) {
@@ -188,9 +248,10 @@ class PlanetModel extends BaseModel  {
                 $results["rows_failed"][] = [...$planet, "errors" => $validator->errors()];
             }
         }
-    }
 
         return $results;
     }
+
+    
     
 }
