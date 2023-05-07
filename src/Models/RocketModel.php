@@ -145,4 +145,41 @@ class RocketModel extends BaseModel  {
 
         return $results;
     }
+
+     /**
+     * Update Rockets Into Database
+     * @param array $data Rockets to Update
+     * @return array Rows Deleted, Failed, and/or Missing Feeback
+     */
+    public function updateRockets($data) {
+        $rules["rocket_id"] = ["required"];
+        $rules["rocket_name"] = ["optional", ["lengthBetween", 1, 64]];
+        $rules["company_name"] = ["optional", ["lengthBetween", 1, 64]];
+        $rules["rocket_status"] = ["optional", ["in", ["Active", "Retired", "Planned"]]];
+        $rules["rocket_thrust"] = ["optional", "integer", ["min", 0], ["max", 9999999]];
+        $rules["rocket_height"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
+        $rules["rocket_price"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+
+        foreach ($data as $rocket) {
+            $validator = new Validator($rocket);
+            $validator->mapFieldsRules($rules);
+
+            if ($validator->validate()) {
+                // Get Fields from Data
+                $fields = ArrayHelper::filterKeys($rocket, ["rocket_name", "company_name", "rocket_status", "rocket_thrust", "rocket_height", "rocket_price"]);
+
+                // Update Astronaut Into Database
+                $row_count = $this->update($this->table_name, $fields, ["rocket_id" => $rocket["rocket_id"]]);
+
+                if ($row_count != 0) {
+                    $result["rows_affected"][] = $this->selectRocket($rocket["rocket_id"]);
+                } else
+                    $result["rows_missing"][] = [...$rocket, "errors" => "An error occured while updating row or specified keys do not exist."];
+            } else {
+                $result["rows_failed"][] = [...$rocket, "errors" => $validator->errors()];
+            }
+        }
+
+        return $result;
+    }
 }

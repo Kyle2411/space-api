@@ -139,4 +139,44 @@ class RocketController extends BaseController
 
         return $this->prepareSuccessResponse(201, $results);
     }
+
+    /**
+     * Handle Rockets PATCH Request
+     * @param Request $request Client Request
+     * @param Response $response Server Response
+     * @return Response Altered Server Response
+     */
+    public function handlePatchRockets(RequestInterface $request, ResponseInterface $response) {
+        // Get Request Body
+        $body = $request->getParsedBody();
+
+        try {
+            if (!is_array($body) || empty($body)) {
+               $exception = new HttpBadRequestException($request);
+               $exception->setDescription("Request body is either empty or is not an array.");
+               
+               throw $exception;
+            }
+
+            $results = $this->rocket_model->updateRockets($body);
+
+            // If Result Contains Missing or Failed Rows...
+            if (isset($results["rows_missing"])) {
+                $exception = new HttpBadRequestException($request);
+                $exception->setDescription(json_encode($results));
+               
+                throw $exception;
+            } else if (isset($results["rows_failed"])) {
+                $exception = new HttpUnprocessableContentException($request);
+                $exception->setDescription(json_encode($results));
+               
+                throw $exception;
+            }
+
+        } catch (HttpException $e) {
+            return $this->prepareErrorResponse($e);
+        }
+
+        return $this->prepareSuccessResponse(201, $results);
+    }
 }
