@@ -45,6 +45,7 @@ class MissionModel extends BaseModel  {
         $where = " WHERE 1 ";
         $group_by = "";
 
+
         if (isset($filters["missionName"])) {
             $where .= " AND m.mission_name LIKE CONCAT('%', :mission_name, '%')";
             $query_values[":mission_name"] = $filters["missionName"];

@@ -54,9 +54,9 @@ class ExoPlanetModel extends BaseModel  {
             $query_values[":toDiscoveryYear"] = $filters["toDiscoveryYear"];
         }
 
-        if (isset($filters["star_id"])) {
-            $where .= " AND p.star_id = :star_id";
-            $query_values[":star_id"] = $filters["star_id"];
+        if (isset($filters["starId"])) {
+            $where .= " AND p.star_id = :starId";
+            $query_values[":starId"] = $filters["starId"];
         }
 
         $sql = $select . $from . $where . $group_by;

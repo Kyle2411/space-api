@@ -31,7 +31,7 @@ class ExoPlanetController extends BaseController
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["page_size"]) ? $params["page_size"] : null;
 
-        $filters = ArrayHelper::filterKeys($params, ["exoPlanetName", "discoveryMethod" , "fromDiscoveryYear", "toDiscoveryYear"]);
+        $filters = ArrayHelper::filterKeys($params, ["starId","exoPlanetName", "discoveryMethod" , "fromDiscoveryYear", "toDiscoveryYear"]);
 
         $data = $this->exoPlanet_model->selectExoPlanets($filters, $page, $page_size);
 

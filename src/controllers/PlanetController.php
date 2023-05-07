@@ -28,7 +28,7 @@ class PlanetController extends BaseController
         $page_size = isset($params["page_size"]) ? $params["page_size"] : null;
 
 
-        $filters = ArrayHelper::filterKeys($params, ["planetName", "planetColor", "star_id", "fromMass","toMass", "fromDiameter", "toDiameter","fromLengthOfDay","toLengthOfDay" ,"fromSurfaceGravity", "toSurfaceGravity", "fromTemperature", "toTemperature"]);
+        $filters = ArrayHelper::filterKeys($params, ["planetName", "planetColor", "starId", "fromMass","toMass", "fromDiameter", "toDiameter","fromLengthOfDay","toLengthOfDay" ,"fromSurfaceGravity", "toSurfaceGravity", "fromTemperature", "toTemperature"]);
 
         $data = $this->planet_model->selectPlanets($filters, $page, $page_size);
 
