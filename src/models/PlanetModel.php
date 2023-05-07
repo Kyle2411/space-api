@@ -177,10 +177,9 @@ class PlanetModel extends BaseModel  {
 
         //Custom Planet Name validator
         Validator::addRule('planet_Name_Exists', function($field, $value, array $params, array $fields) {
-            $planetModel = new PlanetModel();
             $methodName = "selectPlanetsSimple";
         
-            $namerChecker = $this->checkExistingName($value, $methodName, $planetModel, 'planet_name');
+            $namerChecker = $this->checkExistingName($value, $methodName, $this, 'planet_name');
             if(!$namerChecker) {
                 return false;
             }
@@ -198,6 +197,8 @@ class PlanetModel extends BaseModel  {
         
             return true;
         }, 'already exists');
+        
+    
 
 
         //$rules["star_id"] = ["required", "numeric", ["min", 0], ["max", 99999999]];
@@ -220,7 +221,7 @@ class PlanetModel extends BaseModel  {
                     ["numeric", "min:0", "max:99999999"],
                     ["starExists"]
                 ],
-                "planet_name" => ["required", ["lengthBetween", 1, 64],["planet_Name_Exists", $planet]]
+                "planet_name" => ["required", ["lengthBetween", 1, 64],["planet_Name_Exists"]]
             ];
         
             $rules = array_merge($rules, $extra_rules);
@@ -240,7 +241,7 @@ class PlanetModel extends BaseModel  {
                 if ($last_id != 0) {
                     $results["row_inserted"][] = $this->selectPlanet($last_id);
                 } else {
-                    $results["rows_missing"][] = [...$planet, "errors" => "An error occured while inserting row."];
+                    $results["rows_missing"][] = [...$planet, "errors" => "An error occurred while inserting row."];
                 }
             } else {
                 $results["rows_failed"][] = [...$planet, "errors" => $validator->errors()];

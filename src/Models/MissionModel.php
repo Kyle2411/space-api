@@ -89,6 +89,21 @@ class MissionModel extends BaseModel  {
         return $this->paginate($sql, $query_values);
     }
 
+    public function selectMissionSimple() {
+        // Set Page and Page Size Default Values If Params Null
+
+        // Base Statement
+        $select = "SELECT p.*";
+        $from = " FROM $this->table_name AS p";
+        $where = " WHERE 1 ";
+        $group_by = "";
+
+
+        $sql = $select . $from . $where . $group_by;
+
+        return $this->run($sql);
+    }
+
     /**
      * Summary of selectMission
      * @param int $mission_id
@@ -114,8 +129,52 @@ class MissionModel extends BaseModel  {
      * @return array Rows Inserted, Failed and/or Missing
      */
     public function insertMissions(array $data) {
-        $rules["rocket_id"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
-        $rules["mission_name"] = ["required", ["lengthBetween", 1, 128]];
+
+        Validator::addRule('rocketExists', function($field, $value, array $params, array $fields) {
+            $min = $params[0] ?? null;
+            $max = $params[1] ?? null;
+        
+            if (!is_numeric($value) || ($min !== null && $value < $min) || ($max !== null && $value > $max)) {
+                return false;
+            }
+        
+            $rocket = new RocketModel();
+            $rocketData = $rocket->selectRocket($value);
+            if(!$rocketData) {
+                return false;
+            }
+        
+            return true;
+        }, 'does not exist');
+        
+
+
+
+        //Custom Planet Name validator
+        Validator::addRule('mission_Name_Exists', function($field, $value, array $params, array $fields) {
+            $methodName = "selectMissionSimple";
+        
+            $namerChecker = $this->checkExistingName($value, $methodName, $this, 'mission_name');
+            if(!$namerChecker) {
+                return false;
+            }
+        
+            $minLength = isset($params[0]) ? intval($params[0]) : null;
+            $maxLength = isset($params[1]) ? intval($params[1]) : null;
+        
+            if (!is_null($minLength) && strlen($value) < $minLength) {
+                return false;
+            }
+        
+            if (!is_null($maxLength) && strlen($value) > $maxLength) {
+                return false;
+            }
+        
+            return true;
+        }, 'already exists');
+
+        // $rules["rocket_id"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        // $rules["mission_name"] = ["required", ["lengthBetween", 1, 128]];
         $rules["company_name"] = ["required", ["lengthBetween", 1, 64]];
         $rules["mission_location"] = ["required", ["lengthBetween", 1, 128]];
         $rules["mission_date"] = ["required", ["dateFormat", "Y-m-d" ]];
@@ -124,6 +183,18 @@ class MissionModel extends BaseModel  {
 
         // For Each Rocket...
         foreach($data as $mission) {
+
+            $extra_rules = [
+                "rocket_id" => [
+                    "optional",
+                    ["numeric", "min:0", "max:99999999"],
+                    ["rocketExists"]
+                ],
+                "mission_name" => ["required", ["lengthBetween", 1, 128],["mission_Name_Exists"]]
+            ];
+        
+            $rules = array_merge($rules, $extra_rules);
+
             $validator = new Validator($mission);
             $validator->mapFieldsRules($rules);
 

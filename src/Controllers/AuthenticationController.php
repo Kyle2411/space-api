@@ -49,7 +49,7 @@ class AuthenticationController extends BaseController
         // Current time stamp * 60 minutes * 60 seconds
         $jwt_user_info = ["id" => $db_user["user_id"], "email" => $db_user["email"], "role" => $db_user['role']];
         //$expires_in = time() + 60 * 60;
-        $expires_in = time() + 400; // Expires in 400seconds.
+        $expires_in = time() + 40000; // Expires in 400seconds.
         $user_jwt = $jwtManager->generateToken($jwt_user_info, $expires_in);
         //--
         $response_data = json_encode([
