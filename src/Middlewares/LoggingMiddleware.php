@@ -49,10 +49,9 @@ class LoggingMiddleware implements MiddlewareInterface
     
         //Retrieving User Info via Token
         $token_payload = $request->getAttribute(APP_JWT_TOKEN_KEY);
-
+        
         //Checking if token is in request Bearer body
         if($token_payload != NULL){
-
         $logging_model = new WSLoggingModel();
         $request_info = $_SERVER["REMOTE_ADDR"].' '.$request->getUri()->getPath();
         $logging_model->logUserAction($token_payload, $request_info);

@@ -198,8 +198,6 @@ class PlanetModel extends BaseModel  {
         
             return true;
         }, 'already exists');
-        
-    
 
 
         //$rules["star_id"] = ["required", "numeric", ["min", 0], ["max", 99999999]];

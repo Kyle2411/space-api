@@ -50,7 +50,9 @@ class JWTAuthMiddleware implements MiddlewareInterface
         // --4) Access to POST, PUT and DELETE operations must be restricted.
         //     Only admin accounts can be authorized.
         if (in_array($method, ['POST', 'PUT', 'DELETE'])) {
+            
             $role = $decoded_token['role'] ?? 'oye';
+           
             if ($role != 'admin') {
                 throw new HttpForbiddenException($request, 'Insufficient permission!');
             }
