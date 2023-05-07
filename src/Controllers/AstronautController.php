@@ -2,8 +2,10 @@
 
 namespace Vanier\Api\Controllers;
 
-use Psr\Http\Message\ServerRequestInterface as RequestInterface;
-use Psr\Http\Message\ResponseInterface as ResponseInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
 use Vanier\Api\Helpers\Validator;
 use Slim\Exception\HttpException;
 use Vanier\Api\Exceptions\HttpBadRequestException;
@@ -109,7 +111,7 @@ class AstronautController extends BaseController
         return $this->prepareOkResponse($response, $result ? $result : [], empty($result) ? 204 : 200);
     }
 
-    public function handlePostAstronauts(RequestInterface $request, ResponseInterface $response) {
+    public function handlePostAstronauts(Request $request, ResponseInterface $response) {
         // Get Request Body
         $body = $request->getParsedBody();
 

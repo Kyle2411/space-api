@@ -162,12 +162,16 @@ class AstronautModel extends BaseModel  {
                 $fields = ArrayHelper::filterKeys($astronaut, ["astronaut_name", "astronaut_nationality", "astronaut_sex", "year_of_birth", "military_status"]);
 
                 // Update Astronaut Into Database
-                $row_count = $this->update($this->table_name, $fields, ["astronaut_id" => $astronaut["astronaut_id"]]);
+                if (count($fields) != 0) {
+                    $row_count = $this->update($this->table_name, $fields, ["astronaut_id" => $astronaut["astronaut_id"]]);
 
-                if ($row_count != 0) {
-                    $result["rows_affected"][] = $this->selectAstronaut($astronaut["astronaut_id"]);
-                } else
-                    $result["rows_missing"][] = [...$astronaut, "errors" => "An error occured while updating row or specified keys do not exist."];
+                    if ($row_count != 0) {
+                        $result["rows_affected"][] = $this->selectAstronaut($astronaut["astronaut_id"]);
+                    } else
+                        $result["rows_missing"][] = [...$astronaut, "errors" => "An error occured while updating row or specified keys do not exist."];
+                }
+                else
+                    $result["rows_failed"][] = [...$astronaut, "errors" => "There must be at least one field to update a row."];
             } else {
                 $result["rows_failed"][] = [...$astronaut, "errors" => $validator->errors()];
             }
