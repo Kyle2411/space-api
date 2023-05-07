@@ -99,6 +99,8 @@ $app->group('/astronauts', function (RouteCollectorProxy $group) {
     $group->get('', [AstronautController::class, 'handleGetAstronauts']);
     $group->get('/{astronaut_id}', [AstronautController::class, 'handleGetAstronaut']);
     $group->get('/{astronaut_id}/missions', [AstronautController::class, 'handleGetAstronautMissions']);
+    $group->post('', [AstronautController::class, 'handlePostAstronauts']);
+    $group->patch('', [AstronautController::class, 'handlePatchAstronauts']);
 });
 
 // Rockets

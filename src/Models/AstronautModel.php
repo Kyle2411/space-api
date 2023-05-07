@@ -3,9 +3,10 @@
 namespace Vanier\Api\Models;
 
 use Slim\Exception\HttpBadRequestException;
-use Vanier\Api\Validations\Validator;
+use Vanier\Api\Helpers\Validator;
 use Vanier\Api\Models\BaseModel;
 use Vanier\Api\Helpers\ArrayHelper;
+
 
 class AstronautModel extends BaseModel  {
     private $table_name = "astronaut";
@@ -99,5 +100,79 @@ class AstronautModel extends BaseModel  {
 
         return $this->run($sql, [":mission_id"=> $mission_id])->fetchAll();
 
+    }
+
+    /**
+     * Insert Astronauts Into Database
+     * @param array $data Stars to Insert
+     * @return array Rows Inserted, Failed and/or Missing
+     */
+    public function insertAstronauts(array $data) {
+        $rules["astronaut_name"] = ["required", ["lengthBetween", 1, 128]];
+        $rules["astronaut_nationality"] = ["required", ["lengthBetween", 1, 32]];
+        $rules["astronaut_sex"] =  ["required", ["in", ["male", "female"]]];
+        $rules["year_of_birth"] = ["required", "integer", ["min", 0], ["max", 99999]];
+        $rules["military_status"] = ["required", "integer", ["min", 0], ["max", 1]];
+
+        // For Each Rocket...
+        foreach($data as $astronaut) {
+            $validator = new Validator($astronaut);
+            $validator->mapFieldsRules($rules);
+
+            // If Data Is valid...
+            if ($validator->validate()) {
+                // Get Fields from Data
+                $fields = ArrayHelper::filterKeys($astronaut, ["astronaut_name", "astronaut_nationality", "astronaut_sex", "year_of_birth", "military_status"]);
+                
+                // Insert Star Into Database
+                $last_id = $this->insert($this->table_name, $fields);
+
+                if ($last_id != 0) {
+                    $results["row_inserted"][] = $this->selectAstronaut($last_id);
+                } else {
+                    $results["rows_missing"][] = [...$astronaut, "errors" => "An error occured while inserting row."];
+                }
+            } else {
+                $results["rows_failed"][] = [...$astronaut, "errors" => $validator->errors()];
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Update Astronauts Into Database
+     * @param array $data Astronauts to Update
+     * @return array Rows Deleted, Failed, and/or Missing Feeback
+     */
+    public function updateAstronauts($data) {
+        $rules["astronaut_id"] = ["required"];
+        $rules["astronaut_name"] = ["optional", ["lengthBetween", 1, 128]];
+        $rules["astronaut_nationality"] = ["optional", ["lengthBetween", 1, 32]];
+        $rules["astronaut_sex"] =  ["optional", ["in", ["male", "female"]]];
+        $rules["year_of_birth"] = ["optional", "integer", ["min", 0], ["max", 99999]];
+        $rules["military_status"] = ["optional", "integer", ["min", 0], ["max", 1]];
+
+        foreach ($data as $astronaut) {
+            $validator = new Validator($astronaut);
+            $validator->mapFieldsRules($rules);
+
+            if ($validator->validate()) {
+                // Get Fields from Data
+                $fields = ArrayHelper::filterKeys($astronaut, ["astronaut_name", "astronaut_nationality", "astronaut_sex", "year_of_birth", "military_status"]);
+
+                // Update Astronaut Into Database
+                $row_count = $this->update($this->table_name, $fields, ["astronaut_id" => $astronaut["astronaut_id"]]);
+
+                if ($row_count != 0) {
+                    $result["rows_affected"][] = $this->selectAstronaut($astronaut["astronaut_id"]);
+                } else
+                    $result["rows_missing"][] = [...$astronaut, "errors" => "An error occured while updating row or specified keys do not exist."];
+            } else {
+                $result["rows_failed"][] = [...$astronaut, "errors" => $validator->errors()];
+            }
+        }
+
+        return $result;
     }
 }

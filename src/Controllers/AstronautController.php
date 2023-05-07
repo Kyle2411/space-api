@@ -2,9 +2,12 @@
 
 namespace Vanier\Api\Controllers;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ServerRequestInterface as RequestInterface;
+use Psr\Http\Message\ResponseInterface as ResponseInterface;
 use Vanier\Api\Helpers\Validator;
+use Slim\Exception\HttpException;
+use Vanier\Api\Exceptions\HttpBadRequestException;
+use Vanier\Api\Exceptions\HttpUnprocessableContentException;
 use Vanier\Api\Helpers\ArrayHelper;
 use Vanier\Api\Models\AstronautModel;
 use Vanier\Api\Models\MissionModel;
@@ -41,7 +44,7 @@ class AstronautController extends BaseController
      * @param Response $response Server Response
      * @return Response Altered Server Response
      */
-    public function handleGetAstronauts(Request $request, Response $response, array $uri_args)
+    public function handleGetAstronauts(RequestInterface $request, ResponseInterface $response, array $uri_args)
     {
         // Get URI Parameters
         $params = $request->getQueryParams();
@@ -65,7 +68,7 @@ class AstronautController extends BaseController
      * @param Response $response Server Response
      * @return Response Altered Server Response
      */
-    public function handleGetAstronaut(Request $request, Response $response, array $uri_args)
+    public function handleGetAstronaut(RequestInterface $request, ResponseInterface $response, array $uri_args)
     {
         // Get URI Id Argument
         $asteroid_id = $uri_args["astronaut_id"];
@@ -82,7 +85,7 @@ class AstronautController extends BaseController
      * @param Response $response Server Response
      * @return Response Altered Server Response
      */
-    public function handleGetAstronautMissions(Request $request, Response $response, array $uri_args)
+    public function handleGetAstronautMissions(RequestInterface $request, ResponseInterface $response, array $uri_args)
     {
         // Get URI Id Argument
         $astronaut_id = $uri_args["astronaut_id"];
@@ -104,5 +107,75 @@ class AstronautController extends BaseController
         $result["missions"] = $this->mission_model->selectMissions($filters, $page, $page_size);
 
         return $this->prepareOkResponse($response, $result ? $result : [], empty($result) ? 204 : 200);
+    }
+
+    public function handlePostAstronauts(RequestInterface $request, ResponseInterface $response) {
+        // Get Request Body
+        $body = $request->getParsedBody();
+
+        try {
+            if (!is_array($body) || empty($body)) {
+               $exception = new HttpBadRequestException($request);
+               $exception->setDescription("Request body is either empty or is not an array.");
+               throw $exception;
+            }
+
+            $results = $this->astronaut_model->insertAstronauts($body);
+
+            // If Result Contains Missing or Failed Rows...
+            if (isset($results["rows_missing"])) {
+                $exception = new HttpBadRequestException($request);
+                $exception->setDescription(json_encode($results));
+                throw $exception;
+            } else if (isset($results["rows_failed"])) {
+                $exception = new HttpUnprocessableContentException($request);
+                $exception->setDescription(json_encode($results));
+                throw $exception;
+            }
+
+        } catch (HttpException $e) {
+            return $this->prepareErrorResponse($e);
+        }
+        return $this->prepareSuccessResponse(201, $results);
+    }
+
+    /**
+     * Handle Astronauts PATCH Request
+     * @param Request $request Client Request
+     * @param Response $response Server Response
+     * @return Response Altered Server Response
+     */
+    public function handlePatchAstronauts(RequestInterface $request, ResponseInterface $response) {
+        // Get Request Body
+        $body = $request->getParsedBody();
+
+        try {
+            if (!is_array($body) || empty($body)) {
+               $exception = new HttpBadRequestException($request);
+               $exception->setDescription("Request body is either empty or is not an array.");
+               
+               throw $exception;
+            }
+
+            $results = $this->astronaut_model->updateAstronauts($body);
+
+            // If Result Contains Missing or Failed Rows...
+            if (isset($results["rows_missing"])) {
+                $exception = new HttpBadRequestException($request);
+                $exception->setDescription(json_encode($results));
+               
+                throw $exception;
+            } else if (isset($results["rows_failed"])) {
+                $exception = new HttpUnprocessableContentException($request);
+                $exception->setDescription(json_encode($results));
+               
+                throw $exception;
+            }
+
+        } catch (HttpException $e) {
+            return $this->prepareErrorResponse($e);
+        }
+
+        return $this->prepareSuccessResponse(201, $results);
     }
 }
