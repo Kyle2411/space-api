@@ -168,13 +168,17 @@ class RocketModel extends BaseModel  {
                 // Get Fields from Data
                 $fields = ArrayHelper::filterKeys($rocket, ["rocket_name", "company_name", "rocket_status", "rocket_thrust", "rocket_height", "rocket_price"]);
 
-                // Update Astronaut Into Database
-                $row_count = $this->update($this->table_name, $fields, ["rocket_id" => $rocket["rocket_id"]]);
+                if (count($fields) != 0) {
+                    // Update Rocket Into Database
+                    $row_count = $this->update($this->table_name, $fields, ["rocket_id" => $rocket["rocket_id"]]);
 
-                if ($row_count != 0) {
-                    $result["rows_affected"][] = $this->selectRocket($rocket["rocket_id"]);
-                } else
-                    $result["rows_missing"][] = [...$rocket, "errors" => "An error occured while updating row or specified keys do not exist."];
+                    if ($row_count != 0) {
+                        $result["rows_affected"][] = $this->selectRocket($rocket["rocket_id"]);
+                    } else
+                        $result["rows_missing"][] = [...$rocket, "errors" => "An error occured while updating row or specified keys do not exist."];
+                }
+                else 
+                    $result["rows_failed"][] = [...$rocket, "errors" => "There must be at least one field to update a row."];
             } else {
                 $result["rows_failed"][] = [...$rocket, "errors" => $validator->errors()];
             }
