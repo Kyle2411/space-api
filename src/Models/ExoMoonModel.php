@@ -140,4 +140,27 @@ class ExoMoonModel extends BaseModel  {
         
         return $this->run($sql, [":exoplanet_id"=> $exoPlanet_id])->fetchAll();
     }
+
+    /**
+     * Delete Moons In Database
+     * @param array $data Films to Delete
+     * @return array Rows Deleted, Failed, and/or Missing Feeback
+     */
+    public function deleteExomoons($data) {
+        foreach ($data as $exomoon_id) {
+            if (is_int($exomoon_id)) {
+                // Update Customer in Database
+                $row_count = $this->delete($this->table_name, ["exomoon_id" => $exomoon_id]);
+                
+                if ($row_count > 0) {
+                    $result["rows_deleted"][] = ["exomoon_id" => $exomoon_id];
+                } else
+                    $result["rows_missing"][] = ["exomoon_id" => $exomoon_id, "errors" => "An error occured while deleting row or row doesn't exist."];
+            } else {
+                $result["rows_failed"][] = ["data" => $exomoon_id, "errors" => "Request body value must be an integer."];
+            }
+        }
+    
+        return $result;
+    }
 }
