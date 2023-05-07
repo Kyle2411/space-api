@@ -141,6 +141,21 @@ class ExoMoonModel extends BaseModel  {
         return $this->run($sql, [":exoplanet_id"=> $exoPlanet_id])->fetchAll();
     }
 
+    public function selectExoMoonsSimple() {
+        // Set Page and Page Size Default Values If Params Null
+
+        // Base Statement
+        $select = "SELECT exM.*";
+        $from = " FROM $this->table_name AS exM";
+        $where = " WHERE 1 ";
+        $group_by = "";
+
+
+        $sql = $select . $from . $where . $group_by;
+
+        return $this->run($sql);
+    }
+
     /**
      * Delete Exomoons In Database
      * @param array $data Exomoons to Delete
@@ -183,5 +198,110 @@ class ExoMoonModel extends BaseModel  {
         }
     
         return $result;
+    }
+
+    /**
+     * Summary of updateExoMoons
+     * @param mixed $data
+     * @return array
+     */
+    public function updateExoMoons($data) {
+
+        $this->createValidators(true);
+
+
+        $rules["exomoon_id"] = ["required"];
+        $rules["exoplanet_id"] = ["required", "numeric", ["min", 0], ["max", 99999999], ["exoplanetExists"]];
+        $rules["exomoon_name"] = ["required", ["lengthBetween", 1, 128], ["exomoon_Name_Exists"]];
+        $rules["discovery_method"] =  ["required", ["in", ["Radial Velocity","Imaging","Pulsation Timing Variations","Transit","Eclipse Timing Variations","Microlensing","Transit Timing Variations","Pulsation Timing","Disk Kinematics","Orbital Brightness Modulation"]]];
+        $rules["orbital_period_days"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
+        $rules["mass"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
+        foreach ($data as $exomoon) {
+
+            $validator = new Validator($exomoon);
+            $validator->mapFieldsRules($rules);
+
+            if ($validator->validate()) {
+                // Get Fields from Data
+                $fields = ArrayHelper::filterKeys($exomoon, ["exoplanet_id", "exomoon_name", "discovery_method", "orbital_period_days", "moon_density"]);
+               
+                // Update Astronaut Into Database
+                if (count($fields) != 0) {
+                    $row_count = $this->update($this->table_name, $fields, ["exomoon_id" => $exomoon["exomoon_id"]]);
+                    if ($row_count != 0) {
+                        $result["rows_affected"][] = $this->selectExoMoon($exomoon["exomoon_id"]);
+                    } else
+                        $result["rows_missing"][] = [...$exomoon, "errors" => "An error occurred while updating row or specified keys do not exist."];
+                }
+                else
+                    $result["rows_failed"][] = [...$exomoon, "errors" => "There must be at least one field to update a row."];
+            } else {
+                $result["rows_failed"][] = [...$exomoon, "errors" => $validator->errors()];
+            }
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * Summary of createValidators
+     * @param mixed $checkUpdate
+     * @return void
+     */
+    private function createValidators($checkUpdate) {
+        //Creating Custom planet_id validator
+        Validator::addRule('exoplanetExists', function($field, $value, array $params, array $fields) {
+            $min = $params[0] ?? null;
+            $max = $params[1] ?? null;
+        
+            if (!is_numeric($value) || ($min !== null && $value < $min) || ($max !== null && $value > $max)) {
+                return false;
+            }
+        
+            $exoPlanet = new ExoPlanetModel();
+            // Might cause a problem becasue it is fetch and not fetchAll like in rocketModel
+            $exoPlanetData = $exoPlanet->selectexoPlanet($value);
+            if(!$exoPlanetData) {
+                return false;
+            }
+        
+            return true;
+        }, 'does not exist');
+
+        //Creating Custom moon_name validator 
+        Validator::addRule('exomoon_Name_Exists', function($field, $value, array $params, array $fields) use ($checkUpdate)  {
+         
+            $methodName = "selectMoonsSimple";
+            
+            $namerChecker = $this->checkExistingName($value, $methodName, $this,'exomoon_id', $field, $checkUpdate);
+           
+            if($checkUpdate){
+                
+                if($fields['exomoon_id'] != $namerChecker){
+                    
+                    return false;
+                }
+            }
+            else{
+                if(!$namerChecker){
+                    return false;
+                }
+            }
+        
+            $minLength = isset($params[0]) ? intval($params[0]) : null;
+            $maxLength = isset($params[1]) ? intval($params[1]) : null;
+        
+            if (!is_null($minLength) && strlen($value) < $minLength) {
+                return false;
+            }
+        
+            if (!is_null($maxLength) && strlen($value) > $maxLength) {
+                return false;
+            }
+        
+            return true;
+        }, 'already exists');
+
     }
 }

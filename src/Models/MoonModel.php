@@ -3,7 +3,7 @@
 namespace Vanier\Api\Models;
 
 use Slim\Exception\HttpBadRequestException;
-use Vanier\Api\Validations\Validator;
+use Vanier\Api\Helpers\Validator;
 use Vanier\Api\Models\BaseModel;
 use Vanier\Api\Helpers\ArrayHelper;
 
@@ -94,5 +94,114 @@ class MoonModel extends BaseModel  {
         return $this->run($sql, [":planet_id"=> $planet_id])->fetchAll();
     }
 
+    public function selectMoonsSimple() {
+        // Set Page and Page Size Default Values If Params Null
+
+        // Base Statement
+        $select = "SELECT m.*";
+        $from = " FROM $this->table_name AS m";
+        $where = " WHERE 1 ";
+        $group_by = "";
+
+
+        $sql = $select . $from . $where . $group_by;
+
+        return $this->run($sql);
+    }
+
+     public function updateMoons($data) {
+
+        $this->createValidators(true);
+
+
+        $rules["moon_id"] = ["required"];
+        $rules["planet_id"] = ["required", "numeric", ["min", 0], ["max", 99999999], ["planetExists"]];
+        $rules["moon_name"] = ["required", ["lengthBetween", 1, 128], ["moon_Name_Exists"]];
+        $rules["moon_mass"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["moon_radius"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["moon_density"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        foreach ($data as $moon) {
+
+            $validator = new Validator($moon);
+            $validator->mapFieldsRules($rules);
+
+            if ($validator->validate()) {
+                // Get Fields from Data
+                $fields = ArrayHelper::filterKeys($moon, ["planet_id", "moon_name", "moon_mass", "moon_radius", "moon_density"]);
+               
+                // Update Astronaut Into Database
+                if (count($fields) != 0) {
+                    $row_count = $this->update($this->table_name, $fields, ["moon_id" => $moon["moon_id"]]);
+                    if ($row_count != 0) {
+                        $result["rows_affected"][] = $this->selectmoon($moon["moon_id"]);
+                    } else
+                        $result["rows_missing"][] = [...$moon, "errors" => "An error occurred while updating row or specified keys do not exist."];
+                }
+                else
+                    $result["rows_failed"][] = [...$moon, "errors" => "There must be at least one field to update a row."];
+            } else {
+                $result["rows_failed"][] = [...$moon, "errors" => $validator->errors()];
+            }
+        }
+
+        return $result;
+    }
+
+
+    private function createValidators($checkUpdate) {
+        //Creating Custom planet_id validator
+        Validator::addRule('planetExists', function($field, $value, array $params, array $fields) {
+            $min = $params[0] ?? null;
+            $max = $params[1] ?? null;
+        
+            if (!is_numeric($value) || ($min !== null && $value < $min) || ($max !== null && $value > $max)) {
+                return false;
+            }
+        
+            $planet = new PlanetModel();
+            // Might cause a problem becasue it is fetch and not fetchAll like in rocketModel
+            $planetData = $planet->selectPlanet($value);
+            if(!$planetData) {
+                return false;
+            }
+        
+            return true;
+        }, 'does not exist');
+
+        //Creating Custom moon_name validator 
+        Validator::addRule('moon_Name_Exists', function($field, $value, array $params, array $fields) use ($checkUpdate)  {
+         
+            $methodName = "selectMoonsSimple";
+            
+            $namerChecker = $this->checkExistingName($value, $methodName, $this,'moon_id', $field, $checkUpdate);
+           
+            if($checkUpdate){
+                
+                if($fields['moon_id'] != $namerChecker){
+                    
+                    return false;
+                }
+            }
+            else{
+                if(!$namerChecker){
+                    return false;
+                }
+            }
+        
+            $minLength = isset($params[0]) ? intval($params[0]) : null;
+            $maxLength = isset($params[1]) ? intval($params[1]) : null;
+        
+            if (!is_null($minLength) && strlen($value) < $minLength) {
+                return false;
+            }
+        
+            if (!is_null($maxLength) && strlen($value) > $maxLength) {
+                return false;
+            }
+        
+            return true;
+        }, 'already exists');
+
+    }
     
 }

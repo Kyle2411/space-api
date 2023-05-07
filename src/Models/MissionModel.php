@@ -233,39 +233,6 @@ class MissionModel extends BaseModel  {
             return true;
         }, 'does not exist');
 
-        //Creating Custom planet_name validator 
-        Validator::addRule('mission_Name_Exists', function($field, $value, array $params, array $fields) use ($checkUpdate)  {
-         
-            $methodName = "selectMissionsSimple";
-            
-            $namerChecker = $this->checkExistingName($value, $methodName, $this,'mission_id', $field, $checkUpdate);
-           
-            if($checkUpdate){
-                
-                if($fields['mission_id'] != $namerChecker){
-                    
-                    return false;
-                }
-            }
-            else{
-                if(!$namerChecker){
-                    return false;
-                }
-            }
-        
-            $minLength = isset($params[0]) ? intval($params[0]) : null;
-            $maxLength = isset($params[1]) ? intval($params[1]) : null;
-        
-            if (!is_null($minLength) && strlen($value) < $minLength) {
-                return false;
-            }
-        
-            if (!is_null($maxLength) && strlen($value) > $maxLength) {
-                return false;
-            }
-        
-            return true;
-        }, 'already exists');
-
+       
     }
 }
