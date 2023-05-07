@@ -142,7 +142,7 @@ class ExoMoonModel extends BaseModel  {
     }
 
     /**
-     * Delete Moons In Database
+     * Delete Exomoons In Database
      * @param array $data Films to Delete
      * @return array Rows Deleted, Failed, and/or Missing Feeback
      */
@@ -159,6 +159,27 @@ class ExoMoonModel extends BaseModel  {
             } else {
                 $result["rows_failed"][] = ["data" => $exomoon_id, "errors" => "Request body value must be an integer."];
             }
+        }
+    
+        return $result;
+    }
+
+    /**
+     * Delete Exoplanet Exomoons In Database
+     * @param array $exoplanet_id Id of Exoplanet to Delete Exomoons
+     * @return array Rows Deleted, Failed, and/or Missing Feeback
+     */
+    public function deleteExoplanetExomoons($exoplanet_id) {
+        if (is_int($exoplanet_id)) {
+            // Update Customer in Database
+            $row_count = $this->delete($this->table_name, ["exoplanet_id" => $exoplanet_id]);
+            
+            if ($row_count > 0) {
+                $result["rows_deleted"][] = ["exoplanet_id" => $exoplanet_id];
+            } else
+                $result["rows_missing"][] = ["exoplanet_id" => $exoplanet_id, "errors" => "An error occured while deleting row or row doesn't exist."];
+        } else {
+            $result["rows_failed"][] = ["data" => $exoplanet_id, "errors" => "Request body value must be an integer."];
         }
     
         return $result;
