@@ -55,6 +55,7 @@ $app->group('/planets', function (RouteCollectorProxy $group) {
     $group->get('/{planet_id}', [PlanetController::class, 'handleGetPlanet']);
     $group->post('', [PlanetController::class, 'handlePostPlanets']);
     $group->get('/{planet_id}/moons', [PlanetController::class, 'handleGetPlanetMoons']);
+    $group->patch('', [PlanetController::class, 'handlePatchPlanets']);
 });
 
 // ExoPlanets
@@ -64,6 +65,7 @@ $app->group('/exoplanets', function (RouteCollectorProxy $group) {
     $group->get('/{exoPlanet_id}', [ExoPlanetController::class, 'handleGetExoPlanet']);
     $group->get('/{exoPlanet_id}/exoMoons', [ExoPlanetController::class, 'handleGetExoPlanetExoMoons']);
     $group->delete('', [ExoPlanetController::class, 'handleDeleteExoPlanets']);
+    $group->patch('', [ExoPlanetController::class, 'handlePatchExoPlanets']);
 });
 
 //ExoMoons
@@ -94,6 +96,7 @@ $app->group('/missions', function (RouteCollectorProxy $group) {
     $group->get('/{mission_id}', [MissionController::class, 'handleGetMission']);
     $group->get('/{mission_id}/astronauts', [MissionController::class, 'handleGetMissionAstronauts']);
     $group->get('/{mission_id}/rocket', [MissionController::class, 'handleGetMissionRockets']);
+    $group->patch('', [MissionController::class, 'handlePatchMissions']);
 });
 
 // Astronauts

@@ -154,7 +154,103 @@ class PlanetModel extends BaseModel  {
      */
     public function insertPlanets(array $data) {
 
-        //Custom Star ID validator
+        $this->createValidators(false);
+
+        $rules["star_id"] = ["required", "numeric", ["min", 0], ["max", 99999999], ["starExists"]];
+        $rules["planet_name"] = ["required", ["lengthBetween", 1, 64], ["planet_Name_Exists"]];
+        $rules["color"] = ["required", ["lengthBetween", 1, 64]];
+        $rules["mass"] = ["required", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["diameter"] = ["required", "numeric", ["min", 0], ["max", 9999]];
+        $rules["length_of_day"] = ["required", "numeric", ["min", 0], ["max", 9999]];
+        $rules["orbital_period"] = ["required", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["surface_gravity"] = ["required", "numeric", ["min", 0], ["max", 9999]];
+        $rules["temperature"] = ["required", "numeric", ["min", 0], ["max", 9999]];
+        
+        
+        // For Each Rocket...
+        foreach($data as $planet) {
+
+
+            $validator = new Validator($planet);
+            $validator->mapFieldsRules($rules);
+  
+
+            // If Data Is valid...
+            if ($validator->validate()) {
+                // Get Fields from Data
+                $fields = ArrayHelper::filterKeys($planet, ["star_id", "planet_name", "color", "mass", "diameter", "length_of_day", "orbital_period","surface_gravity", "temperature"]);
+                
+
+                $last_id = $this->insert($this->table_name, $fields);
+
+                if ($last_id != 0) {
+                   
+                    $results["row_inserted"][] = $this->selectPlanet($last_id);
+                } else {
+                    $results["rows_missing"][] = [...$planet, "errors" => "An error occurred while inserting row."];
+                }
+            } else {
+                $results["rows_failed"][] = [...$planet, "errors" => $validator->errors()];
+            }
+        }
+    
+
+        return $results;
+    }
+
+    
+    /**
+     * Update Planets Into Database
+     * @param array $data Planets to Update
+     * @return array Rows Deleted, Failed, and/or Missing Feedback
+     */
+    public function updatePlanets($data) {
+
+        $this->createValidators(true);
+
+
+        $rules["planet_id"] = ["required"];
+        $rules["star_id"] = ["required", "numeric", ["min", 0], ["max", 99999999], ["starExists"]];
+        $rules["planet_name"] = ["required", ["lengthBetween", 1, 64], ["planet_Name_Exists"]];
+        $rules["color"] = ["required", ["lengthBetween", 1, 64]];
+        $rules["mass"] = ["required", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["diameter"] = ["required", "numeric", ["min", 0], ["max", 9999]];
+        $rules["length_of_day"] = ["required", "numeric", ["min", 0], ["max", 9999]];
+        $rules["orbital_period"] = ["required", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["surface_gravity"] = ["required", "numeric", ["min", 0], ["max", 9999]];
+        $rules["temperature"] = ["required", "numeric", ["min", 0], ["max", 9999]];
+
+        foreach ($data as $planet) {
+
+
+            $validator = new Validator($planet);
+            $validator->mapFieldsRules($rules);
+
+            if ($validator->validate()) {
+                // Get Fields from Data
+                $fields = ArrayHelper::filterKeys($planet, ["star_id", "planet_name", "color", "mass", "diameter", "length_of_day", "orbital_period","surface_gravity", "temperature"]);
+               
+                // Update Astronaut Into Database
+                if (count($fields) != 0) {
+                    $row_count = $this->update($this->table_name, $fields, ["planet_id" => $planet["planet_id"]]);
+                    if ($row_count != 0) {
+                        $result["rows_affected"][] = $this->selectPlanet($planet["planet_id"]);
+                    } else
+                        $result["rows_missing"][] = [...$planet, "errors" => "An error occurred while updating row or specified keys do not exist."];
+                }
+                else
+                    $result["rows_failed"][] = [...$planet, "errors" => "There must be at least one field to update a row."];
+            } else {
+                $result["rows_failed"][] = [...$planet, "errors" => $validator->errors()];
+            }
+        }
+
+        return $result;
+    }
+
+
+    private function createValidators($checkUpdate) {
+        //Creating Custom star_id validator
         Validator::addRule('starExists', function($field, $value, array $params, array $fields) {
             $min = $params[0] ?? null;
             $max = $params[1] ?? null;
@@ -171,17 +267,25 @@ class PlanetModel extends BaseModel  {
         
             return true;
         }, 'does not exist');
-        
 
-
-
-        //Custom Planet Name validator
-        Validator::addRule('planet_Name_Exists', function($field, $value, array $params, array $fields) {
+        //Creating Custom planet_name validator 
+        Validator::addRule('planet_Name_Exists', function($field, $value, array $params, array $fields) use ($checkUpdate)  {
+         
             $methodName = "selectPlanetsSimple";
-        
-            $namerChecker = $this->checkExistingName($value, $methodName, $this, 'planet_name');
-            if(!$namerChecker) {
-                return false;
+            
+            $namerChecker = $this->checkExistingName($value, $methodName, $this,'planet_id', $field, $checkUpdate);
+           
+            if($checkUpdate){
+                
+                if($fields['planet_id'] != $namerChecker){
+                    
+                    return false;
+                }
+            }
+            else{
+                if(!$namerChecker){
+                    return false;
+                }
             }
         
             $minLength = isset($params[0]) ? intval($params[0]) : null;
@@ -197,60 +301,7 @@ class PlanetModel extends BaseModel  {
         
             return true;
         }, 'already exists');
-        
-    
 
-
-        //$rules["star_id"] = ["required", "numeric", ["min", 0], ["max", 99999999]];
-        //$rules["planet_name"] = ["required", ["lengthBetween", 1, 64]];
-        $rules["color"] = ["required", ["lengthBetween", 1, 64]];
-        $rules["mass"] = ["required", "numeric", ["min", 0], ["max", 99999999]];
-        $rules["diameter"] = ["required", "numeric", ["min", 0], ["max", 9999]];
-        $rules["length_of_day"] = ["required", "numeric", ["min", 0], ["max", 9999]];
-        $rules["orbital_period"] = ["required", "numeric", ["min", 0], ["max", 99999999]];
-        $rules["surface_gravity"] = ["required", "numeric", ["min", 0], ["max", 9999]];
-        $rules["temperature"] = ["required", "numeric", ["min", 0], ["max", 9999]];
-        
-        
-        // For Each Rocket...
-        foreach($data as $planet) {
-
-            $extra_rules = [
-                "star_id" => [
-                    "required",
-                    ["numeric", "min:0", "max:99999999"],
-                    ["starExists"]
-                ],
-                "planet_name" => ["required", ["lengthBetween", 1, 64],["planet_Name_Exists"]]
-            ];
-        
-            $rules = array_merge($rules, $extra_rules);
-
-            $validator = new Validator($planet);
-            $validator->mapFieldsRules($rules);
-  
-
-            // If Data Is valid...
-            if ($validator->validate()) {
-                // Get Fields from Data
-                $fields = ArrayHelper::filterKeys($planet, ["star_id", "planet_name", "color", "mass", "diameter", "length_of_day", "orbital_period","surface_gravity", "temperature", ]);
-                
-                // Insert Star Into Database
-                $last_id = $this->insert($this->table_name, $fields);
-
-                if ($last_id != 0) {
-                    $results["row_inserted"][] = $this->selectPlanet($last_id);
-                } else {
-                    $results["rows_missing"][] = [...$planet, "errors" => "An error occurred while inserting row."];
-                }
-            } else {
-                $results["rows_failed"][] = [...$planet, "errors" => $validator->errors()];
-            }
-        }
-
-        return $results;
     }
 
-    
-    
 }

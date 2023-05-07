@@ -350,7 +350,7 @@ class BaseModel
         $this->records_per_page = $records_per_page;
     }
 
-    public function checkExistingName($object_name, $methodName, $model, $keyName)
+    public function checkExistingName($object_name, $methodName, $model, $keyID, $keyName, $checkUpdate = false)
     {
         $object = $model->$methodName();
         foreach($object as $key => $myLey)
@@ -358,7 +358,9 @@ class BaseModel
 
             if($myLey[$keyName] == $object_name)
             {
-                
+                if($checkUpdate){
+                    return $myLey[$keyID];
+                }
                 return false;
                 
             }
