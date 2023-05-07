@@ -41,6 +41,7 @@ class UserModel extends BaseModel {
         $row = $this->run($sql, [":email" => $email])->fetchAll();
         if ($row && is_array($row)) {
             if (password_verify($input_password, $row[0]['password'])) {
+                
                 return $row[0];
             }
         }

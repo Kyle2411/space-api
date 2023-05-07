@@ -33,6 +33,23 @@ class WSLoggingModel extends BaseModel {
         return $this->insert($this->table_name, $log_data);
     }
 
+
+
+    public function getUserAction()
+    {
+        $select = "SELECT user.*, ws_users.first_name, ws_users.last_name, ws_users.role";
+        $from = " FROM $this->table_name AS user";
+        $join = " LEFT JOIN ws_users ON user.id = ws_users.user_id";
+        $where = " WHERE 1 ";
+        $group_by = "";
+    
+        $sql = $select . $from . $join . $where . $group_by;
+    
+        return $this->run($sql)->fetch();
+    }
+    
+
+
     /**
      * Gets the current date and time give the provided time zone.
      * 

@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 [2023-04-27T13:36:37.839768-04:00] access_logs.ERROR: This Failed [] []
 [2023-04-27T13:36:37.840755-04:00] access_logs.ALERT: Hey this is an alert [] []
 [2023-04-27T13:36:37.840781-04:00] access_logs.WARNING: This is a warning [] []
@@ -2284,3 +2285,9 @@
 [2023-05-07T01:32:57.881146-04:00] database_logs.INFO: This query failed... [] []
 [2023-05-07T01:32:57.881236-04:00] access_logs.INFO: Access: DELETE/space-api/exoplanets [] []
 [2023-05-07T01:32:57.881287-04:00] access_logs.INFO: IP: 127.0.0.1DELETE/space-api/exoplanets [] []
+=======
+[2023-05-07T01:28:05.209692-04:00] access_logs.INFO: jimmyFallon1@gmail.com Logged in at: 2023-05-07 01:28:05 [] []
+[2023-05-07T01:28:17.832817-04:00] access_logs.INFO: s@gmail.com Registered new account in at: 2023-05-07 01:28:17 [] []
+[2023-05-07T01:28:33.854991-04:00] access_logs.INFO: jimmyFallon1@gmail.com Logged in at: 2023-05-07 01:28:33 [] []
+[2023-05-07T01:28:46.612148-04:00] access_logs.INFO: jimmyFallon1@gmail.com made a /space-api/planets GET Request at: 2023-05-07 01:28:46 [] []
+>>>>>>> Stashed changes
