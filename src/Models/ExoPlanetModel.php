@@ -117,4 +117,30 @@ class ExoPlanetModel extends BaseModel  {
 
         return $results;
     }
+
+    /**
+     * Delete Exoplanets In Database
+     * @param array $data Exoplanets to Delete
+     * @return array Rows Deleted, Failed, and/or Missing Feeback
+     */
+    public function deleteExoplanets($data) {
+        foreach ($data as $exoplanet_id) {
+            if (is_int($exoplanet_id)) {
+                // Delete Exoplanet Exomoons in Database
+                $row_count = $this->delete("exomoon", ["exoplanet_id" => $exoplanet_id]);
+
+                // Delete Exoplanet in Database
+                $row_count = $this->delete($this->table_name, ["exoplanet_id" => $exoplanet_id]);
+                
+                if ($row_count > 0) {
+                    $result["rows_deleted"][] = ["exoplanet_id" => $exoplanet_id];
+                } else
+                    $result["rows_missing"][] = ["exoplanet_id" => $exoplanet_id, "errors" => "An error occured while deleting row or row doesn't exist."];
+            } else {
+                $result["rows_failed"][] = ["data" => $exoplanet_id, "errors" => "Request body value must be an integer."];
+            }
+        }
+    
+        return $result;
+    }
 }

@@ -3,8 +3,10 @@
 namespace Vanier\Api\Controllers;
 
 use Fig\Http\Message\StatusCodeInterface;
-use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
 use Vanier\Api\Helpers\ArrayHelper;
 use Slim\Exception\HttpException;
 use Vanier\Api\Exceptions\HttpBadRequestException;
@@ -14,8 +16,9 @@ use Vanier\Api\Models\ExoMoonModel;
 
 class ExoPlanetController extends BaseController
 {
-    // Model for Database Transactions
+    // Models for Database Transactions
     private ExoPlanetModel $exoPlanet_model;
+    private ExoMoonModel $exoMoon_model;
 
     public function __construct()
     {
@@ -85,5 +88,44 @@ class ExoPlanetController extends BaseController
         $data['exoMoon'] = $exoMoon_model->selectExoMoonByExoPlanet($exoPlanet_id);
   
         return $this->prepareOkResponse($response, $data);
+    }
+
+    /**
+     * Handle Exomoons DELETE Request
+     * @param Request $request Client Request
+     * @param Response $response Server Response
+     * @return Response Altered Server Response
+     */
+    public function handleDeleteExoplanets(RequestInterface $request, ResponseInterface $response) {
+        // Get Request Body
+        $body = $request->getParsedBody();
+
+        try {
+            if (!is_array($body) || empty($body)) {
+               $exception = new HttpBadRequestException($request);
+               $exception->setDescription("Request body is either empty or is not an array.");
+               
+               throw $exception;
+            }
+
+            $results = $this->exoPlanet_model->deleteExoplanets($body);
+
+            // If Result Contains Missing or Failed Rows...
+            if (isset($results["rows_missing"])) {
+                $exception = new HttpBadRequestException($request);
+                $exception->setDescription(json_encode($results));
+               
+                throw $exception;
+            } else if (isset($results["rows_failed"])) {
+                $exception = new HttpUnprocessableContentException($request);
+                $exception->setDescription(json_encode($results));
+               
+                throw $exception;
+            }
+        } catch (HttpException $e) {
+            return $this->prepareErrorResponse($e);
+        }
+
+        return $this->prepareSuccessResponse(200, $results);
     }
 }

@@ -143,7 +143,7 @@ class ExoMoonModel extends BaseModel  {
 
     /**
      * Delete Exomoons In Database
-     * @param array $data Films to Delete
+     * @param array $data Exomoons to Delete
      * @return array Rows Deleted, Failed, and/or Missing Feeback
      */
     public function deleteExomoons($data) {
@@ -171,7 +171,7 @@ class ExoMoonModel extends BaseModel  {
      */
     public function deleteExoplanetExomoons($exoplanet_id) {
         if (is_int($exoplanet_id)) {
-            // Update Customer in Database
+            // Delete Exoplanet in Database
             $row_count = $this->delete($this->table_name, ["exoplanet_id" => $exoplanet_id]);
             
             if ($row_count > 0) {
