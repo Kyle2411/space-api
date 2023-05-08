@@ -106,7 +106,7 @@ class StarModel extends BaseModel  {
         $rules["mass"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
         $rules["surface_gravity"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
 
-        // For Each Rocket...
+        // For Each Star...
         foreach($data as $star) {
             $validator = new Validator($star);
             $validator->mapFieldsRules($rules);
@@ -130,5 +130,41 @@ class StarModel extends BaseModel  {
         }
 
         return $results;
+    }
+
+    public function updateStars($data) {
+
+        //$this->createValidators(true);
+        $rules["star_id"] = ["required"];
+        $rules["star_name"] = ["required", ["lengthBetween", 1, 64]];
+        $rules["effective_temperature"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
+        $rules["radius"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["mass"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["surface_gravity"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+
+        foreach ($data as $star) {
+
+            $validator = new Validator($star);
+            $validator->mapFieldsRules($rules);
+
+            if ($validator->validate()) {
+                // Get Fields from Data
+                $fields = ArrayHelper::filterKeys($star, ["star_name", "effective_temperature", "radius", "mass", "surface_gravity"]);
+
+                // Update Astronaut Into Database
+                if (count($fields) != 0) {
+                    $row_count = $this->update($this->table_name, $fields, ["star_id" => $star["star_id"]]);
+                    if ($row_count != 0) {
+                        $result["rows_affected"][] = $this->selectStar($star["star_id"]);
+                    } else
+                        $result["rows_missing"][] = [...$star, "errors" => "An error occurred while updating row or specified keys do not exist."];
+                }
+                else
+                    $result["rows_failed"][] = [...$star, "errors" => "There must be at least one field to update a row."];
+            } else {
+                $result["rows_failed"][] = [...$star, "errors" => $validator->errors()];
+            }
+        }
+        return $result;
     }
 }
