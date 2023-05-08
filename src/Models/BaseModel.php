@@ -352,6 +352,7 @@ class BaseModel
 
     public function checkExistingName($object_name, $methodName, $model, $keyID, $keyName, $checkUpdate = false)
     {
+      
         $object = $model->$methodName();
         foreach($object as $key => $myLey)
         {

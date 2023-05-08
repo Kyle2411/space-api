@@ -133,7 +133,7 @@ class MoonModel extends BaseModel  {
                 if (count($fields) != 0) {
                     $row_count = $this->update($this->table_name, $fields, ["moon_id" => $moon["moon_id"]]);
                     if ($row_count != 0) {
-                        $result["rows_affected"][] = $this->selectmoon($moon["moon_id"]);
+                        $result["rows_affected"][] = $this->selectMoon($moon["moon_id"]);
                     } else
                         $result["rows_missing"][] = [...$moon, "errors" => "An error occurred while updating row or specified keys do not exist."];
                 }
@@ -171,6 +171,9 @@ class MoonModel extends BaseModel  {
         //Creating Custom moon_name validator 
         Validator::addRule('moon_Name_Exists', function($field, $value, array $params, array $fields) use ($checkUpdate)  {
          
+            if($value == NULL){
+                return false;
+            }
             $methodName = "selectMoonsSimple";
             
             $namerChecker = $this->checkExistingName($value, $methodName, $this,'moon_id', $field, $checkUpdate);
