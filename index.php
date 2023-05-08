@@ -2,13 +2,16 @@
 
 use Slim\Factory\AppFactory;
 use Vanier\Api\Helpers\JWTManager;
+use Vanier\Api\Middlewares\JWTAuthMiddleware;
 use Vanier\Api\Middlewares\ContentNegotiationMiddleware;
 use Vanier\Api\Middlewares\LoggingMiddleware;
-use Tuupola\Middleware\JwtAuthentication;
+
 
 define('APP_BASE_DIR', __DIR__);
 // IMPORTANT: This file must be added to your .ignore file. 
 define('APP_ENV_CONFIG', 'config.env');
+
+define('APP_JWT_TOKEN_KEY', 'APP_JWT_TOKEN');
 
 
 require __DIR__ . '/vendor/autoload.php';
@@ -42,9 +45,11 @@ require_once __DIR__ . '/src/Routes/api_routes.php';
 
 $app->add(new LoggingMiddleware());
 
-// $jwt_secret = JWTManager::getSecretKey();
+$jwt_secret = JWTManager::getSecretKey();
+$app->add(new JWTAuthMiddleware());
 
-// $app->add(new Tuupola\Middleware\JwtAuthentication([
+
+// $app->add(new JWTAuthMiddleware([
 //     'secret' => $jwt_secret,
 //     'algorithm' => 'HS256',
 //     'secure' => false, // only for localhost for prod and test env set true            

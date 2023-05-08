@@ -45,6 +45,7 @@ class MissionModel extends BaseModel  {
         $where = " WHERE 1 ";
         $group_by = "";
 
+
         if (isset($filters["missionName"])) {
             $where .= " AND m.mission_name LIKE CONCAT('%', :mission_name, '%')";
             $query_values[":mission_name"] = $filters["missionName"];
@@ -89,6 +90,21 @@ class MissionModel extends BaseModel  {
         return $this->paginate($sql, $query_values);
     }
 
+    public function selectMissionsSimple() {
+        // Set Page and Page Size Default Values If Params Null
+
+        // Base Statement
+        $select = "SELECT p.*";
+        $from = " FROM $this->table_name AS p";
+        $where = " WHERE 1 ";
+        $group_by = "";
+
+
+        $sql = $select . $from . $where . $group_by;
+
+        return $this->run($sql);
+    }
+
     /**
      * Summary of selectMission
      * @param int $mission_id
@@ -114,8 +130,11 @@ class MissionModel extends BaseModel  {
      * @return array Rows Inserted, Failed and/or Missing
      */
     public function insertMissions(array $data) {
-        $rules["rocket_id"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
-        $rules["mission_name"] = ["required", ["lengthBetween", 1, 128]];
+
+        $this->createValidators(false);
+
+        $rules["rocket_id"] = ["required", "numeric", ["min", 0], ["max", 99999999], ["rocketExists"]];
+        $rules["mission_name"] = ["required", ["lengthBetween", 1, 128], ["mission_Name_Exists"]];
         $rules["company_name"] = ["required", ["lengthBetween", 1, 64]];
         $rules["mission_location"] = ["required", ["lengthBetween", 1, 128]];
         $rules["mission_date"] = ["required", ["dateFormat", "Y-m-d" ]];
@@ -124,6 +143,7 @@ class MissionModel extends BaseModel  {
 
         // For Each Rocket...
         foreach($data as $mission) {
+
             $validator = new Validator($mission);
             $validator->mapFieldsRules($rules);
 
@@ -148,5 +168,71 @@ class MissionModel extends BaseModel  {
         return $results;
     }
 
-    
+    /**
+     * Update Missions Into Database
+     * @param array $data Missions to Update
+     * @return array Rows Deleted, Failed, and/or Missing Feedback
+     */
+    public function updateMissions($data) {
+
+        $this->createValidators(true);
+
+
+        $rules["mission_id"] = ["required"];
+        $rules["rocket_id"] = ["required", "numeric", ["min", 0], ["max", 99999999], ["rocketExists"]];
+        $rules["mission_name"] = ["required", ["lengthBetween", 1, 128], ["mission_Name_Exists"]];
+        $rules["company_name"] = ["required", ["lengthBetween", 1, 64]];
+        $rules["mission_location"] = ["required", ["lengthBetween", 1, 128]];
+        $rules["mission_date"] = ["required", ["dateFormat", "Y-m-d" ]];
+        $rules["mission_time"] = ["optional", ["regex", '/([A-Za-z0-9]+(:[A-Za-z0-9]+)+)/i']];
+        $rules["mission_status"] = ["optional", ["in", ["Success", "Failure", "Partial Failure", "Prelaunch Failure"]]];
+
+        foreach ($data as $mission) {
+
+            $validator = new Validator($mission);
+            $validator->mapFieldsRules($rules);
+
+            if ($validator->validate()) {
+                // Get Fields from Data
+                $fields = ArrayHelper::filterKeys($mission, ["rocket_id", "mission_name", "company_name", "mission_location", "mission_date", "mission_time", "mission_status"]);
+               
+                // Update Astronaut Into Database
+                if (count($fields) != 0) {
+                    $row_count = $this->update($this->table_name, $fields, ["mission_id" => $mission["mission_id"]]);
+                    if ($row_count != 0) {
+                        $result["rows_affected"][] = $this->selectMission($mission["mission_id"]);
+                    } else
+                        $result["rows_missing"][] = [...$mission, "errors" => "An error occurred while updating row or specified keys do not exist."];
+                }
+                else
+                    $result["rows_failed"][] = [...$mission, "errors" => "There must be at least one field to update a row."];
+            } else {
+                $result["rows_failed"][] = [...$mission, "errors" => $validator->errors()];
+            }
+        }
+
+        return $result;
+    }
+
+    private function createValidators($checkUpdate) {
+        //Creating Custom rocket_id validator
+        Validator::addRule('rocketExists', function($field, $value, array $params, array $fields) {
+            $min = $params[0] ?? null;
+            $max = $params[1] ?? null;
+        
+            if (!is_numeric($value) || ($min !== null && $value < $min) || ($max !== null && $value > $max)) {
+                return false;
+            }
+        
+            $rocket = new RocketModel();
+            $rocketData = $rocket->selectRocket($value);
+            if(!$rocketData) {
+                return false;
+            }
+        
+            return true;
+        }, 'does not exist');
+
+       
+    }
 }

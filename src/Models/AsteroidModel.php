@@ -133,4 +133,65 @@ class AsteroidModel extends BaseModel  {
 
         return $results;
     }
+
+    public function updateAsteroids($data) {
+
+        //$this->createValidators(true);
+        $rules["asteroid_id"] = ["required"];
+        $rules["asteroid_name"] = ["optional", ["lengthBetween", 1, 64]];
+        $rules["asteroid_designation"] = ["required", "numeric", ["min", 0], ["max", 999999]];
+        $rules["sentry_monitored"] = ["optional", "integer", ["min", 0], ["max", 1]];
+        $rules["asteroid_dangerous"] = ["optional", "integer", ["min", 0], ["max", 1]];
+        $rules["asteroid_magnitude"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["asteroid_min_diameter"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["asteroid_max_diameter"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+
+        foreach ($data as $asteroid) {
+
+            $validator = new Validator($asteroid);
+            $validator->mapFieldsRules($rules);
+
+            if ($validator->validate()) {
+                // Get Fields from Data
+                $fields = ArrayHelper::filterKeys($asteroid, ["asteroid_name", "asteroid_designation", "sentry_monitored", "asteroid_dangerous", "asteroid_magnitude", "asteroid_min_diameter", "asteroid_max_diameter"]);
+
+                // Update Astronaut Into Database
+                if (count($fields) != 0) {
+                    $row_count = $this->update($this->table_name, $fields, ["asteroid_id" => $asteroid["asteroid_id"]]);
+                    if ($row_count != 0) {
+                        $result["rows_affected"][] = $this->selectAsteroid($asteroid["asteroid_id"]);
+                    } else
+                        $result["rows_missing"][] = [...$asteroid, "errors" => "An error occurred while updating row or specified keys do not exist."];
+                }
+                else
+                    $result["rows_failed"][] = [...$asteroid, "errors" => "There must be at least one field to update a row."];
+            } else {
+                $result["rows_failed"][] = [...$asteroid, "errors" => $validator->errors()];
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Delete Asteroids In Database
+     * @param array $data Asteroids to Delete
+     * @return array Rows Deleted, Failed, and/or Missing Feedback
+     */
+    public function deleteAsteroids($data) {
+        foreach ($data as $asteroid_id) {
+            if (is_int($asteroid_id)) {
+                // Delete Asteroid in Database
+                $row_count = $this->delete($this->table_name, ["asteroid_id" => $asteroid_id]);
+                
+                if ($row_count > 0) {
+                    $result["rows_deleted"][] = ["asteroid_id" => $asteroid_id];
+                } else
+                    $result["rows_missing"][] = ["asteroid_id" => $asteroid_id, "errors" => "An error occured while deleting row or row doesn't exist."];
+            } else {
+                $result["rows_failed"][] = ["data" => $asteroid_id, "errors" => "Request body value must be an integer."];
+            }
+        }
+    
+        return $result;
+    }
 }

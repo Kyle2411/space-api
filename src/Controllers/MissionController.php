@@ -29,7 +29,7 @@ class MissionController extends BaseController
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["page_size"]) ? $params["page_size"] : null;
 
-        $filters = ArrayHelper::filterKeys($params, ["missionName", "companyName", "fromMissionDate", "toMissionDate", "missionStatus"]);
+        $filters = ArrayHelper::filterKeys($params, ["rocketId", "missionName", "companyName", "fromMissionDate", "toMissionDate", "missionStatus"]);
 
         $data = $this->mission_model->selectMissions($filters, $page, $page_size);
 
@@ -105,5 +105,37 @@ class MissionController extends BaseController
         return $this->prepareOkResponse($response, $data);
     }
 
-    
+    public function handlePatchMissions(Request $request, Response $response) {
+        // Get Request Body
+        $body = $request->getParsedBody();
+
+        try {
+            if (!is_array($body) || empty($body)) {
+               $exception = new HttpBadRequestException($request);
+               $exception->setDescription("Request body is either empty or is not an array.");
+               
+               throw $exception;
+            }
+
+            $results = $this->mission_model->updateMissions($body);
+
+            // If Result Contains Missing or Failed Rows...
+            if (isset($results["rows_missing"])) {
+                $exception = new HttpBadRequestException($request);
+                $exception->setDescription(json_encode($results));
+               
+                throw $exception;
+            } else if (isset($results["rows_failed"])) {
+                $exception = new HttpUnprocessableContentException($request);
+                $exception->setDescription(json_encode($results));
+               
+                throw $exception;
+            }
+
+        } catch (HttpException $e) {
+            return $this->prepareErrorResponse($e);
+        }
+
+        return $this->prepareSuccessResponse(201, $results);
+    }
 }
