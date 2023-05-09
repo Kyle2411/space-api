@@ -271,6 +271,9 @@ class PlanetModel extends BaseModel  {
         //Creating Custom planet_name validator 
         Validator::addRule('planet_Name_Exists', function($field, $value, array $params, array $fields) use ($checkUpdate)  {
          
+            if($value == NULL){
+                return false;
+            }
             $methodName = "selectPlanetsSimple";
             
             $namerChecker = $this->checkExistingName($value, $methodName, $this,'planet_id', $field, $checkUpdate);

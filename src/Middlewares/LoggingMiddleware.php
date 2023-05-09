@@ -46,14 +46,26 @@ class LoggingMiddleware implements MiddlewareInterface
         $logger->setTimeZone(new DateTimeZone('America/Toronto'));
         $log_handler = new StreamHandler(APP_LOG_DIR.'access.log', Logger::DEBUG);
         $logger->pushHandler($log_handler);
+
+        $errorLogger = new Logger("error_logs");
+        $errorLogger->setTimeZone(new DateTimeZone('America/Toronto'));
+        $log_handler = new StreamHandler(APP_LOG_DIR.'error.log', Logger::DEBUG);
+        $errorLogger->pushHandler($log_handler);
     
         //Retrieving User Info via Token
-        $token_payload = $request->getAttribute(APP_JWT_TOKEN_KEY);
+        
         
         //Checking if token is in request Bearer body
-        if($token_payload != NULL){
-        $logging_model = new WSLoggingModel();
+        
+        $uriPartial =explode("/", $request->getUri()->getPath());
+        
+        if($uriPartial[2] != "account" && $uriPartial[2] != "token"){
+            
         $request_info = $_SERVER["REMOTE_ADDR"].' '.$request->getUri()->getPath();
+        $token_payload = $request->getAttribute(APP_JWT_TOKEN_KEY);
+
+        $logging_model = new WSLoggingModel();
+        
         $logging_model->logUserAction($token_payload, $request_info);
 
         //Retrieving email from token payload
@@ -61,7 +73,10 @@ class LoggingMiddleware implements MiddlewareInterface
 
         //Logging user request info
         $logger->info($emailRequest. " made a ". $request->getUri()->getPath()." ". $request->getMethod() ." Request at: " . $this->getCurrentDateAndTime());
-        }
+        
+        $response = $handler->handle($request);
+        return $response;
+    }
 
         //if no token is in request Bearer body
         else{
@@ -69,28 +84,45 @@ class LoggingMiddleware implements MiddlewareInterface
             $response = $handler->handle($request);
             $body = (string) $response->getBody();
             $data = json_decode($body);
+
             $message = $data->message;
+            $status = $response->getStatusCode();
+            
+            
+            $uriPartial =explode("/", $request->getUri()->getPath());
 
             //Checking if user is logging in successfully
-            if($message == "User logged in successfully!"){
+            if($uriPartial[2] == "token"){
+                if($status == 200){
 
                 $emailLogin = $request->getParsedBody()['email'];
                 $logger->info($emailLogin ." Logged in at: " . $this->getCurrentDateAndTime());
             }
+            else{
+
+                $emailLogin = $request->getParsedBody()['email'];
+                $errorLogger->error($emailLogin ." Failed to log in because $message at:" . $this->getCurrentDateAndTime());
+            }
+        }
 
             //Checking if user is creating account in successfully
-            if($message == "The new user account has been created successfully!"){
-
+            if($uriPartial[2] == "account"){
+                if($status == 200){
                 $emailLogin = $request->getParsedBody()['email'];
                 $logger->info($emailLogin ." Registered new account at: " . $this->getCurrentDateAndTime());
             }
-           
-            return $response;
+            else{
+                $emailLogin = $request->getParsedBody()['email'];
+                $errorLogger->error($emailLogin ." Failed to create account because $message at: " . $this->getCurrentDateAndTime());
+            
+        }
+            
         }
 
         $response = $handler->handle($request);
         return $response;
     }
+}
 
     private function getCurrentDateAndTime() {
         // By setting the time zone, we ensure that the produced time 

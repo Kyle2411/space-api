@@ -215,7 +215,7 @@ class MissionModel extends BaseModel  {
     }
 
     private function createValidators($checkUpdate) {
-        //Creating Custom rocket_id validator
+        
         Validator::addRule('rocketExists', function($field, $value, array $params, array $fields) {
             $min = $params[0] ?? null;
             $max = $params[1] ?? null;
