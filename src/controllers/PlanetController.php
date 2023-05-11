@@ -8,6 +8,7 @@ use Slim\Exception\HttpException;
 use Vanier\Api\Exceptions\HttpBadRequestException;
 use Vanier\Api\Exceptions\HttpUnprocessableContentException;
 use Vanier\Api\Helpers\ArrayHelper;
+use Vanier\Api\Helpers\WebServiceInvoker;
 use Vanier\Api\Models\PlanetModel;
 use Vanier\Api\Models\MoonModel;
 
@@ -27,10 +28,19 @@ class PlanetController extends BaseController
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["page_size"]) ? $params["page_size"] : null;
 
-
         $filters = ArrayHelper::filterKeys($params, ["planetName", "planetColor", "starId", "fromMass","toMass", "fromDiameter", "toDiameter","fromLengthOfDay","toLengthOfDay" ,"fromSurfaceGravity", "toSurfaceGravity", "fromTemperature", "toTemperature"]);
 
         $data = $this->planet_model->selectPlanets($filters, $page, $page_size);
+
+        foreach($data['data'] as &$planet)
+        {
+            $planet_uri = 'http://images-api.nasa.gov/search?q=' . $planet['planet_name'];
+            $wsInvoker = new WebServiceInvoker();
+            $planet_json = $wsInvoker->invokeUri($planet_uri);
+            $planet_data = json_decode($planet_json);
+
+            $planet["related_image"] = $planet_data->collection->items[0]->links[0]->href;
+        }
 
         return $this->prepareOkResponse($response, $data);
     }
