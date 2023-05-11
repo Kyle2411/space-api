@@ -39,9 +39,9 @@ class AsteroidController extends BaseController
     {
         $asteroid_id = $uri_args['asteroid_id'];
 
-        $data = $this->asteroid_model->selectAsteroid($asteroid_id);
+        $results = $this->asteroid_model->selectAsteroid($asteroid_id);
 
-        return $this->prepareOkResponse($response, $data);
+        return $this->prepareOkResponse($response, $results ? $results : [], empty($results) ? 204 : 200);
     }
 
     public function handlePostAsteroids(Request $request, Response $response) {

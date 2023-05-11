@@ -119,13 +119,13 @@ class AstronautController extends BaseController
     public function handleGetAstronaut(RequestInterface $request, ResponseInterface $response, array $uri_args)
     {
         // Get URI Id Argument
-        $asteroid_id = $uri_args["astronaut_id"];
+        $astronaut_id = $uri_args["astronaut_id"];
 
         $controller = new CompositeResourcesController();
         $astronautsInSpace = $controller->handleGetAllAstronautsInSpace();
 
         // Select Astronaut Based on Id
-        $result = $this->astronaut_model->selectAstronaut($asteroid_id);
+        $result = $this->astronaut_model->selectAstronaut($astronaut_id);
         
         if ($result) 
             foreach ($astronautsInSpace as $astronautInSpace) {
