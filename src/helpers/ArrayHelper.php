@@ -22,6 +22,21 @@ class ArrayHelper {
     }
 
     /**
+     * Keep All Unspecified Array Keys
+     * @param array $array Array with Key-Value Pairs
+     * @param array $keys Key of Key-Value Pairs to Keep
+     * @return array $array with Only Specified Keys
+     */
+    public static function keepMissingKeys(array $array, array $keys) 
+    {
+        $filteredArray = array_filter($array, function($key) use ($keys) {
+            return !in_array($key, $keys);
+        }, ARRAY_FILTER_USE_KEY);
+
+        return $filteredArray;
+    }
+
+    /**
      * Validate Array Set Values
      * @param $values Array of Values to be Validated
      * @param $set_values Array of Set Values to Match

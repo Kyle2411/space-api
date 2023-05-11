@@ -55,29 +55,59 @@ class AstronautController extends BaseController
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
 
-        // Get Filters from Parameters
-        $filters = ArrayHelper::filterKeys($params, ["name", "sex", "fromBirthYear", "toBirthYear", "militaryStatus"]);
+        // Supported Filters
+        $filters = ["name", "sex", "fromBirthYear", "toBirthYear", "militaryStatus", "page", "pageSize"];
 
-        //Composite Resource
+        // Get Unsupported Keys from Parameters, If Any
+        $missingKeys = ArrayHelper::keepMissingKeys($params, $filters);
+
+        if (count($missingKeys) > 0) {
+            $description = ["error" => "Parameters sent with query are unsupported.", "supported_params" => $filters, "unsupported_params" => array_keys($missingKeys)]; 
+
+            $exception = new HttpUnprocessableContentException($request);
+            $exception->setDescription(json_encode($description));
+            return $this->prepareErrorResponse($exception);
+        }
+
+        // Set Param Rules
+        $rules["name"] = ["optional", ["lengthBetween", 1, 128]];
+        $rules["sex"] =  ["optional", ["in", ["male", "female"]]];
+        $rules["fromBirthYear"] = ["optional", "integer", ["min", 0], ["max", 99999]];
+        $rules["toBirthYear"] = ["optional", "integer", ["min", 0], ["max", 99999]];
+        $rules["militaryStatus"] = ["optional", "integer", ["min", 0], ["max", 1]];
+
+        $validator = new Validator($params);
+        $validator->mapFieldsRules($rules);
+
+        if (!$validator->validate()) {
+            $description = ["error" => "Parameters sent with query are not properly formatted.", "errors" => $validator->errors()]; 
+
+            $exception = new HttpUnprocessableContentException($request);
+            $exception->setDescription(json_encode($description));
+            return $this->prepareErrorResponse($exception);
+        }
+
+        // Composite Resource
         $controller = new CompositeResourcesController();
         $astronautsInSpace = $controller->handleGetAllAstronautsInSpace();
 
         // Select Astronauts Based on Filters
-        $results = $this->astronaut_model->selectAstronauts($filters, $page, $page_size);
+        $results = $this->astronaut_model->selectAstronauts($params, $page, $page_size);
         
-        foreach ($results["data"] as &$astronaut) {
-            foreach ($astronautsInSpace as $astronautInSpace) {
-                if ($astronaut["astronaut_name"] === $astronautInSpace) {
-                    $astronaut["in_space"] = true;
-                    break;
-                } else {
-                    $astronaut["in_space"] = false;
-                    continue;
+        if ($results)
+            foreach ($results["data"] as &$astronaut) {
+                foreach ($astronautsInSpace as $astronautInSpace) {
+                    if ($astronaut["astronaut_name"] === $astronautInSpace) {
+                        $astronaut["in_space"] = true;
+                        break;
+                    } else {
+                        $astronaut["in_space"] = false;
+                        continue;
+                    }
                 }
             }
-        }
 
-        return $this->prepareOkResponse($response, $results, empty($results["data"]) ? 204 : 200);
+        return $this->prepareOkResponse($response, $results ? $results : [], empty($results["data"]) ? 204 : 200);
     }
 
     /**
@@ -89,23 +119,24 @@ class AstronautController extends BaseController
     public function handleGetAstronaut(RequestInterface $request, ResponseInterface $response, array $uri_args)
     {
         // Get URI Id Argument
-        $asteroid_id = $uri_args["astronaut_id"];
+        $astronaut_id = $uri_args["astronaut_id"];
 
         $controller = new CompositeResourcesController();
         $astronautsInSpace = $controller->handleGetAllAstronautsInSpace();
 
         // Select Astronaut Based on Id
-        $result = $this->astronaut_model->selectAstronaut($asteroid_id);
+        $result = $this->astronaut_model->selectAstronaut($astronaut_id);
         
-        foreach ($astronautsInSpace as $astronautInSpace) {
-            if ($result["astronaut_name"] == $astronautInSpace) {
-                $result["in_space"] = true;
-                break;
-            } else {
-                $result["in_space"] = false;
-                continue;
+        if ($result) 
+            foreach ($astronautsInSpace as $astronautInSpace) {
+                if ($result["astronaut_name"] == $astronautInSpace) {
+                    $result["in_space"] = true;
+                    break;
+                } else {
+                    $result["in_space"] = false;
+                    continue;
+                }
             }
-        }
 
         return $this->prepareOkResponse($response, $result ? $result : [], empty($result) ? 204 : 200);
     }

@@ -28,24 +28,21 @@ class CompositeResourcesController extends WebServiceInvoker
         $data = $planet_model->selectPlanets();
         
         $retrieved_planets = [];
+        $wsInvoker = new WebServiceInvoker();
 
         foreach($data['data'] as $planet)
         {
             $planet_uri = 'http://images-api.nasa.gov/search?q=' . $planet['planet_name'];
-            $planet = $this->invokeUri($planet_uri);
-            $planet_data = json_decode($planet);
-            
-            
+            $planet_json = $wsInvoker->invokeUri($planet_uri);
+            $planet_data = json_decode($planet_json);
 
-            $first_image = $planet_data->collection->items[0];
+            $planet_info = [
+                'name' => $planet['planet_name'],
+                'related_image' => $planet_data->collection->items[0]->links[0]->href,
+            ];
         
-            $planet = [
-            'image' => $first_image->links[0]->href
-        ];
-        $retrieved_planets['planets'][] = $planet;
-
+            $retrieved_planets[] = $planet_info;
         }
-        
         return $retrieved_planets;
     }
 }

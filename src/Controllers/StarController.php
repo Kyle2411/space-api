@@ -31,18 +31,18 @@ class StarController extends BaseController
 
         $filters = ArrayHelper::filterKeys($params, ["starName", "temperature", "fromRadius", "toRadius", "fromMass", "toMass", "fromGravity", "toGravity"]);
 
-        $data = $this->star_model->selectStars($filters, $page, $page_size);
+        $results = $this->star_model->selectStars($filters, $page, $page_size);
 
-        return $this->prepareOkResponse($response, $data);
+        return $this->prepareOkResponse($response, $results);
     }
 
     public function handleGetStar(Request $request, Response $response, array $uri_args)
     {
         $star_id = $uri_args['star_id'];
         
-        $data = $this->star_model->selectStar($star_id);
-
-        return $this->prepareOkResponse($response, $data);
+        $results = $this->star_model->selectStar($star_id);
+        
+        return $this->prepareOkResponse($response, $results ? $results : [], empty($results) ? 204 : 200);
     }
 
     public function handleGetStarPlanets(Request $request, Response $response, array $uri_args)
@@ -59,10 +59,10 @@ class StarController extends BaseController
 
         $planet_model = new PlanetModel();
 
-        $data = $this->star_model->selectStar($star_id);
-        $data['planets'] =  $planet_model->selectPlanets($filters, $page, $page_size);
+        $results = $this->star_model->selectStar($star_id);
+        $results['planets'] =  $planet_model->selectPlanets($filters, $page, $page_size);
 
-        return $this->prepareOkResponse($response, $data);
+        return $this->prepareOkResponse($response, $results ? $results : [], empty($results) ? 204 : 200);
     }
 
     public function handleGetStarExoPlanets(Request $request, Response $response, array $uri_args)
@@ -79,10 +79,11 @@ class StarController extends BaseController
 
         $exoPlanet_model = new ExoPlanetModel();
 
-        $data = $this->star_model->selectStar($star_id);
-        $data['exoPlanets'] =  $exoPlanet_model->selectExoPlanets($filters, $page, $page_size);
+        $results = $this->star_model->selectStar($star_id);
+        $results['exoPlanets'] =  $exoPlanet_model->selectExoPlanets($filters, $page, $page_size);
 
-        return $this->prepareOkResponse($response, $data);
+        return $this->prepareOkResponse($response, $results ? $results : [], empty($results["data"]) ? 204 : 200);
+
     }
 
     public function handlePostStars(Request $request, Response $response) {
