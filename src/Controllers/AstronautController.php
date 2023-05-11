@@ -72,7 +72,7 @@ class AstronautController extends BaseController
                     break;
                 } else {
                     $astronaut["in_space"] = false;
-                    break;
+                    continue;
                 }
             }
         }
@@ -98,12 +98,12 @@ class AstronautController extends BaseController
         $result = $this->astronaut_model->selectAstronaut($asteroid_id);
         
         foreach ($astronautsInSpace as $astronautInSpace) {
-            if ($result["astronaut_name"] === $astronautInSpace) {
+            if ($result["astronaut_name"] == $astronautInSpace) {
                 $result["in_space"] = true;
                 break;
             } else {
                 $result["in_space"] = false;
-                break;
+                continue;
             }
         }
 
