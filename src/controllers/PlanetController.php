@@ -2,25 +2,33 @@
 
 namespace Vanier\Api\Controllers;
 
+use Exception;
+use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Exception\HttpException;
 use Vanier\Api\Exceptions\HttpBadRequestException;
+use Vanier\Api\Exceptions\HttpBadRequestExceptionForWeight;
 use Vanier\Api\Exceptions\HttpUnprocessableContentException;
 use Vanier\Api\Helpers\ArrayHelper;
+use Vanier\Api\Helpers\Calculator;
 use Vanier\Api\Helpers\WebServiceInvoker;
 use Vanier\Api\Models\PlanetModel;
 use Vanier\Api\Models\MoonModel;
+use Vanier\Api\Models\WeightModel;
 
 class PlanetController extends BaseController
 {
     // Model for Database Transactions
     private PlanetModel $planet_model;
+    private WeightModel $weight_model;
 
     public function __construct()
     {
         $this->planet_model = new PlanetModel();
+        $this->weight_model = new WeightModel();
     }
+    
 
     public function handleGetPlanets(Request $request, Response $response, array $uri_args)
     {
@@ -145,6 +153,50 @@ class PlanetController extends BaseController
         }
 
         return $this->prepareSuccessResponse(201, $results);
+    }
+
+
+    public function handlePostWeight(Request $request, Response $response)
+    {
+        $weight_data = $request->getParsedBody();
+
+        $data = $this->planet_model->selectPlanets();
+        $allPlanets = $data['data'];
+        $planet_data = [];
+        
+
+        foreach($allPlanets as &$planet)
+        {
+            array_push($planet_data, $planet['planet_name']);
+        }
+
+        $unit_data = $weight_data['unit'];
+
+        $weight = $weight_data['weight'];
+        $planetName = $weight_data['planet_name'];
+
+        
+        $arrayGravity = $this->weight_model->weightByPlanet($planetName);
+
+        if ($arrayGravity != true) {
+            throw new HttpBadRequestExceptionForWeight($request);
+        }
+        $gravity = $arrayGravity['surface_gravity'];
+       
+            
+        $calculator = new Calculator();
+
+        $totalWeight = $calculator->calculate( 
+            $planet_data, $planetName, $weight, $gravity  
+            )->toMany($unit_data, 2 , true);
+
+        //$totalWeight = round($totalWeight, 2);
+            
+        $json_data = json_encode($totalWeight);
+        $response->getBody()->write("Your weight on planet: " . $planetName . "\n" . "is " . $json_data . "\n");
+
+
+        return $response->withStatus(StatusCodeInterface::STATUS_ACCEPTED)->withHeader("Content-Type", "application/json");
     }
     
 }

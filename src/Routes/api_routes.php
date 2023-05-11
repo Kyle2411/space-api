@@ -59,6 +59,7 @@ $app->group('/planets', function (RouteCollectorProxy $group) {
     $group->post('', [PlanetController::class, 'handlePostPlanets']);
     $group->get('/{planet_id}/moons', [PlanetController::class, 'handleGetPlanetMoons']);
     $group->patch('', [PlanetController::class, 'handlePatchPlanets']);
+    $group->post('/weight', [PlanetController::class, 'handlePostWeight']);
 });
 
 // ExoPlanets
