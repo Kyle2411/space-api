@@ -96,14 +96,11 @@ class ExoMoonModel extends BaseModel  {
         }
 
         if (isset($filters["discoveryMethod"])) {
-            $where .= "AND exM.discovery_method >= :from_discovery_method ";
-            $query_values[":from_discovery_method"] = $filters["discoveryMethod"];
+            $where .= "AND exM.discovery_method >= :discovery_method ";
+            $query_values[":discovery_method"] = $filters["discoveryMethod"];
         }
 
-        if (isset($filters["discoveryMethod"])) {
-            $where .= "AND exM.discovery_method <= :to_discovery_method ";
-            $query_values[":to_discovery_method"] = $filters["discoveryMethod"];
-        }
+      
 
 
        

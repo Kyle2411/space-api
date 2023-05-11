@@ -56,8 +56,8 @@ class MoonModel extends BaseModel  {
         }
 
         if (isset($filters["moonDensity"])) {
-            $where .= "AND m.moon_desity = :moon_desity ";
-            $query_values[":moon_desity"] = $filters["moonDensity"];
+            $where .= "AND m.moon_density = :moon_density ";
+            $query_values[":moon_density"] = $filters["moonDensity"];
         }
 
         $sql = $select . $from . $join . $where . $group_by;
