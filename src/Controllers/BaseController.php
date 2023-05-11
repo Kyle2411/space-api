@@ -3,13 +3,53 @@
 namespace Vanier\Api\Controllers;
 
 use Slim\Exception\HttpException;
-use Psr\Http\Message\ResponseInterface;
-use Slim\Psr7\Response;
+use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Vanier\Api\Exceptions\HttpUnprocessableContentException;
 
 class BaseController
 {
-    protected function prepareOkResponse(ResponseInterface $response, array $data, int $status_code = 200)
+
+    protected function checkColumns(array $data, array $desiredKeys, array $optional_keys, Request $request, Response $response)
+    {
+   
+            //Checks if the actor has all of the keys and that their values are not empty
+            foreach($desiredKeys as $key)
+            {
+                if (!array_key_exists($key, $data)) {
+
+                    return $this->prepareResponse($response,
+                    ['error' => true, 'message' => "Missing Required Key: '$key'"], 422);
+                }
+
+                else if (empty($data[$key])) {
+                    return $this->prepareResponse($response,
+                    ['error' => true, 'message' => "Column '$key' value cannot be empty"], 422);
+
+                }
+            }
+
+            //Checks if the actor has no values empty
+            foreach($desiredKeys as $key)
+            {
+                if (empty($data[$key])) {
+                    return $this->prepareResponse($response,
+                    ['error' => true, 'message' => "Column '$key' value cannot be empty"], 422);
+                }
+            }
+           
+            //Gets all of the invalid columns by checking if the column belongs in the allKeys array
+            $allKeys = array_merge($desiredKeys, $optional_keys);
+            $invalidKeys = array_diff(array_keys($data), $allKeys);
+            if (!empty($invalidKeys)) {
+                return $this->prepareResponse($response,
+                    ['error' => true, 'message' => "Invalid Key(s): " . implode(',', $invalidKeys)], 422);
+            }
+            return $response;
+        
+    }
+
+    protected function prepareOkResponse(Response $response, array $data, int $status_code = 200)
     {
         // var_dump($data);
         $json_data = json_encode($data);

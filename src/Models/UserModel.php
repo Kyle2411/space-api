@@ -3,6 +3,7 @@ namespace Vanier\Api\Models;
 
 use DateTime;
 use DateTimeZone;
+use Vanier\Api\Exceptions\HttpUnprocessableContentException;
 
 /**
  * A model for managing the Web service users.

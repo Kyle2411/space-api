@@ -31,8 +31,7 @@ $app->add(new ContentNegotiationMiddleware());
 
 //-- Add error handling middleware.
 // NOTE: the error middleware MUST be added last.
-$errorMiddleware = $app->addErrorMiddleware(true, true, true);
-$errorMiddleware->getDefaultErrorHandler()->forceContentType(APP_MEDIA_TYPE_JSON);
+
 
 // TODO: change the name of the subdirectory here.
 // You also need to change it in .htaccess
@@ -67,6 +66,9 @@ $app->add(new JWTAuthMiddleware());
 // ]));
 
 $app->addBodyParsingMiddleware();
+
+$errorMiddleware = $app->addErrorMiddleware(true, true, true);
+$errorMiddleware->getDefaultErrorHandler()->forceContentType(APP_MEDIA_TYPE_JSON);
 // This is a middleware that should be disabled/enabled later. 
 //$app->add($beforeMiddleware);
 // Run the app.
