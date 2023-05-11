@@ -56,10 +56,13 @@ $app->group('/stars', function (RouteCollectorProxy $group) {
 $app->group('/planets', function (RouteCollectorProxy $group) {
     $group->get('', [PlanetController::class, 'handleGetPlanets']);
     $group->get('/{planet_id}', [PlanetController::class, 'handleGetPlanet']);
-    $group->post('', [PlanetController::class, 'handlePostPlanets']);
+    //$group->post('', [PlanetController::class, 'handlePostPlanets']);
     $group->get('/{planet_id}/moons', [PlanetController::class, 'handleGetPlanetMoons']);
-    $group->patch('', [PlanetController::class, 'handlePatchPlanets']);
+<<<<<<< HEAD
     $group->post('/weight', [PlanetController::class, 'handlePostWeight']);
+=======
+    //$group->patch('', [PlanetController::class, 'handlePatchPlanets']);
+>>>>>>> 2e318289979b8e79d8663397300e2a78538881a3
 });
 
 // ExoPlanets
