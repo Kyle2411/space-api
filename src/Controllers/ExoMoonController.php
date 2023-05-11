@@ -32,7 +32,7 @@ class ExoMoonController extends BaseController
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
 
-        $filters = ArrayHelper::filterKeys($params, ["exoMoonName", "discoveryMethod", "orbitalPeriodDays", "exoMass", "from"]);
+        $filters = ArrayHelper::filterKeys($params, ["exoMoonName", "discoveryMethod", "orbitalPeriodDays", "exoMass"]);
         
         $data = $this->exoMoon_model->selectExoMoons($filters, $page, $page_size);
         return $this->prepareOkResponse($response, $data);
