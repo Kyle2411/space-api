@@ -28,7 +28,9 @@ global $app;
 // ROUTE: /
 
 //--Authentication Routes
-
+$app->group('/', function (RouteCollectorProxy $group) {
+    $group->get('', [RootController::class, 'handleGetRoot']);
+});
 //Account
 $app->group('/account', function (RouteCollectorProxy $group) {
     $group->post('', [AuthenticationController::class, 'handleCreateUserAccount']);

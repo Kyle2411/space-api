@@ -42,10 +42,10 @@ $app->setBasePath("/space-api");
 require_once __DIR__ . '/src/Routes/api_routes.php';
 
 
-$app->add(new LoggingMiddleware());
+// $app->add(new LoggingMiddleware());
 
-$jwt_secret = JWTManager::getSecretKey();
-$app->add(new JWTAuthMiddleware());
+// $jwt_secret = JWTManager::getSecretKey();
+// $app->add(new JWTAuthMiddleware());
 
 
 // $app->add(new JWTAuthMiddleware([
