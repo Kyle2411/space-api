@@ -93,6 +93,19 @@ class AsteroidModel extends BaseModel  {
 
         return $this->run($sql, [":asteroid_id"=> $asteroid_id])->fetch();
     }
+    public function selectAsteroidsSimple() {
+
+        // Base Statement
+        $select = "SELECT a.*";
+        $from = " FROM $this->table_name AS a";
+        $where = " WHERE 1 ";
+        $group_by = "";
+
+
+        $sql = $select . $from . $where . $group_by;
+
+        return $this->run($sql);
+    }
 
     /**
      * Insert Asteroids Into Database
@@ -100,7 +113,8 @@ class AsteroidModel extends BaseModel  {
      * @return array Rows Inserted, Failed and/or Missing
      */
     public function insertAsteroids(array $data) {
-        $rules["asteroid_name"] = ["optional", ["lengthBetween", 1, 64]];
+        $this->createValidators(true);
+        $rules["asteroid_name"] = ["optional", ["lengthBetween", 1, 64], ["asteroid_Name_Exists"]];
         $rules["asteroid_designation"] = ["required", "numeric", ["min", 0], ["max", 999999]];
         $rules["sentry_monitored"] = ["optional", "integer", ["min", 0], ["max", 1]];
         $rules["asteroid_dangerous"] = ["optional", "integer", ["min", 0], ["max", 1]];
@@ -136,9 +150,9 @@ class AsteroidModel extends BaseModel  {
 
     public function updateAsteroids($data) {
 
-        //$this->createValidators(true);
-        $rules["asteroid_id"] = ["required"];
-        $rules["asteroid_name"] = ["optional", ["lengthBetween", 1, 64]];
+        $this->createValidators(true);
+        $rules["asteroid_id"] = ["required", ["asteroid_Exists"]];
+        $rules["asteroid_name"] = ["optional", ["lengthBetween", 1, 64], ["asteroid_Name_Exists"]];
         $rules["asteroid_designation"] = ["required", "numeric", ["min", 0], ["max", 999999]];
         $rules["sentry_monitored"] = ["optional", "integer", ["min", 0], ["max", 1]];
         $rules["asteroid_dangerous"] = ["optional", "integer", ["min", 0], ["max", 1]];
@@ -178,6 +192,7 @@ class AsteroidModel extends BaseModel  {
      * @return array Rows Deleted, Failed, and/or Missing Feedback
      */
     public function deleteAsteroids($data) {
+        
         foreach ($data as $asteroid_id) {
             if (is_int($asteroid_id)) {
                 // Delete Asteroid in Database
@@ -193,5 +208,59 @@ class AsteroidModel extends BaseModel  {
         }
     
         return $result;
+    }
+
+    private function createValidators($checkUpdate) {
+        //Creating Custom asteroid_id validator
+        Validator::addRule('asteroid_Exists', function($field, $value, array $params, array $fields) {
+            $min = $params[0] ?? null;
+            $max = $params[1] ?? null;
+        
+            if (!is_numeric($value) || ($min !== null && $value < $min) || ($max !== null && $value > $max)) {
+                return false;
+            }
+        
+            $asteroid = new AsteroidModel();
+            $asteroidData = $asteroid->selectAsteroid($value);
+            if(!$asteroidData) {
+                return false;
+            }
+        
+            return true;
+        }, 'does not exist');
+
+        //Creating Custom planet_name validator 
+        Validator::addRule('asteroid_Name_Exists', function($field, $value, array $params, array $fields) use ($checkUpdate)  {
+         
+            $methodName = "selectAsteroidsSimple";
+            
+            $namerChecker = $this->checkExistingName($value, $methodName, $this,'asteroid_name', $field, $checkUpdate);
+           
+            if($checkUpdate){
+                
+                if($fields['asteroid_name'] != $namerChecker){
+                    return false;
+                }
+            }
+            else{
+                if(!$namerChecker){
+                    return false;
+                }
+            }
+        
+            $minLength = isset($params[0]) ? intval($params[0]) : null;
+            $maxLength = isset($params[1]) ? intval($params[1]) : null;
+        
+            if (!is_null($minLength) && strlen($value) < $minLength) {
+                return false;
+            }
+        
+            if (!is_null($maxLength) && strlen($value) > $maxLength) {
+                return false;
+            }
+        
+            return true;
+        }, 'already exists');
+
     }
 }

@@ -5,6 +5,7 @@ namespace Vanier\Api\Controllers;
 use Slim\Exception\HttpException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Psr7\Response as ResponseObj;
 use Vanier\Api\Exceptions\HttpUnprocessableContentException;
 
 class BaseController
@@ -67,7 +68,7 @@ class BaseController
     protected function prepareSuccessResponse(int $status_code, $data) : Response {
         $json = json_encode($data);
 
-        $response = new Response();
+        $response = new ResponseObj();
         $response->getBody()->write($json);    
         return $response->withStatus($status_code)->withHeader("Content-Type", "application/json");
     }
@@ -89,7 +90,7 @@ class BaseController
 
             // Generate Error Response in JSON Format
             $json_error = json_encode($error);
-            $response = new Response();
+            $response = new ResponseObj();
             $response->getBody()->write($json_error);
 
             // Set Status Code to 406 Not Acceptable

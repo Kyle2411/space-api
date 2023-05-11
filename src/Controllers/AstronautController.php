@@ -58,8 +58,24 @@ class AstronautController extends BaseController
         // Get Filters from Parameters
         $filters = ArrayHelper::filterKeys($params, ["name", "sex", "fromBirthYear", "toBirthYear", "militaryStatus"]);
 
+        //Composite Resource
+        $controller = new CompositeResourcesController();
+        $astronautsInSpace = $controller->handleGetAllAstronautsInSpace();
+
         // Select Astronauts Based on Filters
         $results = $this->astronaut_model->selectAstronauts($filters, $page, $page_size);
+        
+        foreach ($results["data"] as &$astronaut) {
+            foreach ($astronautsInSpace as $astronautInSpace) {
+                if ($astronaut["astronaut_name"] === $astronautInSpace) {
+                    $astronaut["in_space"] = true;
+                    break;
+                } else {
+                    $astronaut["in_space"] = false;
+                    break;
+                }
+            }
+        }
 
         return $this->prepareOkResponse($response, $results, empty($results["data"]) ? 204 : 200);
     }
@@ -75,8 +91,21 @@ class AstronautController extends BaseController
         // Get URI Id Argument
         $asteroid_id = $uri_args["astronaut_id"];
 
+        $controller = new CompositeResourcesController();
+        $astronautsInSpace = $controller->handleGetAllAstronautsInSpace();
+
         // Select Astronaut Based on Id
         $result = $this->astronaut_model->selectAstronaut($asteroid_id);
+        
+        foreach ($astronautsInSpace as $astronautInSpace) {
+            if ($result["astronaut_name"] === $astronautInSpace) {
+                $result["in_space"] = true;
+                break;
+            } else {
+                $result["in_space"] = false;
+                break;
+            }
+        }
 
         return $this->prepareOkResponse($response, $result ? $result : [], empty($result) ? 204 : 200);
     }
