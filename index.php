@@ -11,7 +11,7 @@ define('APP_BASE_DIR', __DIR__);
 // IMPORTANT: This file must be added to your .ignore file. 
 define('APP_ENV_CONFIG', 'config.env');
 
-// define('APP_JWT_TOKEN_KEY', 'APP_JWT_TOKEN');
+define('APP_JWT_TOKEN_KEY', 'APP_JWT_TOKEN');
 
 
 require __DIR__ . '/vendor/autoload.php';
