@@ -77,6 +77,29 @@ class StarController extends BaseController
 
         $filters = ["planetName", "planetColor", "starId", "fromMass","toMass", "fromDiameter", "toDiameter","fromLengthOfDay","toLengthOfDay" ,"fromSurfaceGravity", "toSurfaceGravity", "toTemperature", "fromTemperature"];
 
+        // Set Param Rules
+        $rules["starId"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["planetName"] = ["optional", ["lengthBetween", 1, 64]];
+        $rules["planetColor"] = ["optional", ["lengthBetween", 1, 64]];
+        $rules["fromMass"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["toMass"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["fromDiameter"] = ["optional", "numeric", ["min", 0], ["max", 9999]];
+        $rules["toDiameter"] = ["optional", "numeric", ["min", 0], ["max", 9999]];
+        $rules["fromLengthOfDay"] = ["optional", "numeric", ["min", 0], ["max", 9999]];
+        $rules["toLengthOfDay"] = ["optional", "numeric", ["min", 0], ["max", 9999]];
+        $rules["fromSurfaceGravity"] = ["optional", "numeric", ["min", 0], ["max", 9999]];
+        $rules["toSurfaceGravity"] = ["optional", "numeric", ["min", 0], ["max", 9999]];
+        $rules["fromTemperature"] = ["optional", "numeric", ["min", 0], ["max", 9999]];
+        $rules["toTemperature"] = ["optional", "numeric", ["min", 0], ["max", 9999]];
+        $rules["page"] = ["optional", "integer", ["min", 1], ["max", 99999]];
+        $rules["pageSize"] = ["optional", "integer", ["min", 1], ["max", 99999]];
+
+        $filters_check = $this->checkFilters($params, $filters, $rules, $request);
+
+        if ($filters_check) {
+            return $this->prepareErrorResponse($filters_check);
+        }
+
         $planet_model = new PlanetModel();
 
         $results = $this->star_model->selectStar($star_id);
