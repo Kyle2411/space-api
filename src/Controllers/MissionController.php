@@ -47,6 +47,10 @@ class MissionController extends BaseController
                throw $exception;
             }
 
+            if (ArrayHelper::isAssociative($body)) {
+                $body = [$body];
+            }
+
             $results = $this->mission_model->insertMissions($body);
 
             // If Result Contains Missing or Failed Rows...
@@ -115,6 +119,10 @@ class MissionController extends BaseController
                $exception->setDescription("Request body is either empty or is not an array.");
                
                throw $exception;
+            }
+
+            if (ArrayHelper::isAssociative($body)) {
+                $body = [$body];
             }
 
             $results = $this->mission_model->updateMissions($body);
