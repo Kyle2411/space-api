@@ -33,13 +33,15 @@ class ExoMoonController extends BaseController
         $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
 
         // Supported Filters
-        $filters = ["exoMoonName", "discoveryMethod", "orbitalPeriodDays", "exoMass"];
+        $filters = ["exoMoonName", "discoveryMethod", "orbitalPeriodDays", "exoMass", "page", "pageSize"];
 
         // Set Param Rules
         $rules["exoMoonName"] = ["optional", ["lengthBetween", 1, 64]];
         $rules["discoveryMethod"] =  ["optional", ["in", ["Radial Velocity","Imaging","Pulsation Timing Variations","Transit","Eclipse Timing Variations","Microlensing","Transit Timing Variations","Pulsation Timing","Disk Kinematics","Orbital Brightness Modulation"]]];
         $rules["orbitalPeriodDays"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
         $rules["exoMass"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
+        $rules["page"] = ["optional", "integer", ["min", 1], ["max", 99999]];
+        $rules["pageSize"] = ["optional", "integer", ["min", 1], ["max", 99999]];
 
         $filters_check = $this->checkFilters($params, $filters, $rules, $request);
 
