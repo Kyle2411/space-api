@@ -120,6 +120,11 @@ class MissionController extends BaseController
     {
         $mission_id = $uri_args['mission_id'];
 
+        $id_check = $this->checkId($mission_id, $request);
+
+        if ($id_check) {
+            return $this->prepareErrorResponse($id_check);
+        }
         
         $rocket_model = new rocketModel();
 
