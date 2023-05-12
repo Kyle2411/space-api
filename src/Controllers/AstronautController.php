@@ -93,6 +93,7 @@ class AstronautController extends BaseController
 
         // Select Astronauts Based on Filters
         $results = $this->astronaut_model->selectAstronauts($params, $page, $page_size);
+        $results = ["filters" => $filters, ...$results];
         
         if ($results)
             foreach ($results["data"] as &$astronaut) {
