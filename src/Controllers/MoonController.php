@@ -55,6 +55,10 @@ class MoonController extends BaseController
                throw $exception;
             }
 
+            if (ArrayHelper::isAssociative($body)) {
+                $body = [$body];
+            }
+
             $results = $this->moon_model->updateMoons($body);
 
             // If Result Contains Missing or Failed Rows...
