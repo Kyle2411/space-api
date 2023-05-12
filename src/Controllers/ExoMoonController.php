@@ -52,11 +52,15 @@ class ExoMoonController extends BaseController
         $body = $request->getParsedBody();
 
         try {
-            if (!is_array($body) || empty($body) || count(array_filter(array_keys($body), 'is_string')) > 0) {
+            if (!is_array($body) || empty($body)) {
                 $exception = new HttpBadRequestException($request);
                 $exception->setDescription("The body is either empty or not in the proper format");
 
                 throw $exception;
+            }
+
+            if (ArrayHelper::isAssociative($body)) {
+                $body = [$body];
             }
 
             $results = $this->exoMoon_model->createExoMoon($body);
@@ -131,6 +135,10 @@ class ExoMoonController extends BaseController
                $exception->setDescription("Request body is either empty or is not an array.");
                
                throw $exception;
+            }
+
+            if (ArrayHelper::isAssociative($body)) {
+                $body = [$body];
             }
 
             $results = $this->exoMoon_model->updateExoMoons($body);
