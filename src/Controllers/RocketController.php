@@ -108,7 +108,7 @@ class RocketController extends BaseController
         }
 
         // Select Astronauts Based on Id
-        $result = $this->rocket_model->selectRocket($rocket_id);
+        $result = $this->rocket_model->selectRocket($rocket_id)[0];
 
         // Get URI Parameters
         $params = $request->getQueryParams();
