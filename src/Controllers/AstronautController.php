@@ -63,6 +63,8 @@ class AstronautController extends BaseController
         $rules["fromBirthYear"] = ["optional", "integer", ["min", 0], ["max", 99999]];
         $rules["toBirthYear"] = ["optional", "integer", ["min", 0], ["max", 99999]];
         $rules["militaryStatus"] = ["optional", "integer", ["min", 0], ["max", 1]];
+        $rules["page"] = ["optional", "integer", ["min", 1], ["max", 99999]];
+        $rules["pageSize"] = ["optional", "integer", ["min", 1], ["max", 99999]];
 
         $filters_check = $this->checkFilters($params, $filters, $rules, $request);
 
