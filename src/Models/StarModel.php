@@ -94,13 +94,31 @@ class StarModel extends BaseModel  {
         return $this->run($sql, [":star_id"=> $star_id])->fetch();
     }
 
+    public function selectStarsSimple() {
+        // Set Page and Page Size Default Values If Params Null
+
+        // Base Statement
+        $select = "SELECT p.*";
+        $from = " FROM $this->table_name AS p";
+        $where = " WHERE 1 ";
+        $group_by = "";
+
+
+        $sql = $select . $from . $where . $group_by;
+
+        return $this->run($sql);
+    }
+
     /**
      * Insert Stars Into Database
      * @param array $data Stars to Insert
      * @return array Rows Inserted, Failed and/or Missing
      */
     public function insertStars(array $data) {
-        $rules["star_name"] = ["required", ["lengthBetween", 1, 64]];
+
+        $this->createValidators(false);
+
+        $rules["star_name"] = ["required", ["lengthBetween", 1, 64], ["star_Name_Exists"]];
         $rules["effective_temperature"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
         $rules["radius"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
         $rules["mass"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
@@ -134,9 +152,10 @@ class StarModel extends BaseModel  {
 
     public function updateStars($data) {
 
-        //$this->createValidators(true);
+        $this->createValidators(true);
+
         $rules["star_id"] = ["required"];
-        $rules["star_name"] = ["required", ["lengthBetween", 1, 64]];
+        $rules["star_name"] = ["required", ["lengthBetween", 1, 64], ["star_Name_Exists"]];
         $rules["effective_temperature"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
         $rules["radius"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
         $rules["mass"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
@@ -166,5 +185,47 @@ class StarModel extends BaseModel  {
             }
         }
         return $result;
+    }
+
+    private function createValidators($checkUpdate) {
+        
+
+        //Creating Custom planet_name validator 
+        Validator::addRule('star_Name_Exists', function($field, $value, array $params, array $fields) use ($checkUpdate)  {
+         
+            if($value == NULL){
+                return false;
+            }
+            $methodName = "selectStarsSimple";
+            
+            $namerChecker = $this->checkExistingName($value, $methodName, $this,'star_id', $field, $checkUpdate);
+           
+            if($checkUpdate){
+                
+                if($fields['star_id'] != $namerChecker){
+                    
+                    return false;
+                }
+            }
+            else{
+                if(!$namerChecker){
+                    return false;
+                }
+            }
+        
+            $minLength = isset($params[0]) ? intval($params[0]) : null;
+            $maxLength = isset($params[1]) ? intval($params[1]) : null;
+        
+            if (!is_null($minLength) && strlen($value) < $minLength) {
+                return false;
+            }
+        
+            if (!is_null($maxLength) && strlen($value) > $maxLength) {
+                return false;
+            }
+        
+            return true;
+        }, 'already exists');
+
     }
 }

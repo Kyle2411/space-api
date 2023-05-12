@@ -176,7 +176,7 @@ class ExoMoonModel extends BaseModel  {
      */
     public function createExoMoon(array $data)
     {
-        $this->createValidators(true);
+        $this->createValidators(false);
 
         $rules["exomoon_name"] = ["required", ["lengthBetween", 1, 64], ["exomoon_Name_Exists"]];
         $rules["exoplanet_id"] = ["required", "numeric", ["min", 0], ["max", 999999], ["exoplanetExists"]];

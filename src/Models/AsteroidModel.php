@@ -113,7 +113,7 @@ class AsteroidModel extends BaseModel  {
      * @return array Rows Inserted, Failed and/or Missing
      */
     public function insertAsteroids(array $data) {
-        $this->createValidators(true);
+        $this->createValidators(false);
         $rules["asteroid_name"] = ["optional", ["lengthBetween", 1, 64], ["asteroid_Name_Exists"]];
         $rules["asteroid_designation"] = ["required", "numeric", ["min", 0], ["max", 999999]];
         $rules["sentry_monitored"] = ["optional", "integer", ["min", 0], ["max", 1]];

@@ -76,7 +76,7 @@ class PlanetModel extends BaseModel  {
         } 
 
         if(isset($filters["fromLengthOfDay"])) {
-            $where .= " AND p.length_of_day <= :fromLengthOfDay";
+            $where .= " AND p.length_of_day >= :fromLengthOfDay";
             $query_values[":fromLengthOfDay"] = $filters["fromLengthOfDay"];
         }
 
@@ -86,7 +86,7 @@ class PlanetModel extends BaseModel  {
         }
 
         if(isset($filters["fromSurfaceGravity"])) {
-            $where .= " AND p.surface_gravity <= :fromSurfaceGravity";
+            $where .= " AND p.surface_gravity >= :fromSurfaceGravity";
             $query_values[":fromSurfaceGravity"] = $filters["fromSurfaceGravity"];
         }
 
@@ -96,7 +96,7 @@ class PlanetModel extends BaseModel  {
         }
 
         if(isset($filters["fromTemperature"])) {
-            $where .= " AND p.temperature <= :fromTemperature";
+            $where .= " AND p.temperature >= :fromTemperature";
             $query_values[":fromTemperature"] = $filters["fromTemperature"];
         }
 
