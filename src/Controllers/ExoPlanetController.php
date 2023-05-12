@@ -100,6 +100,13 @@ class ExoPlanetController extends BaseController
     public function handleGetExoPlanetExoMoons(Request $request, Response $response, array $uri_args)
     {
         $exoPlanet_id = $uri_args['exoPlanet_id'];
+
+        $id_check = $this->checkId($exoPlanet_id, $request);
+
+        if ($id_check) {
+            return $this->prepareErrorResponse($id_check);
+        }
+
         $filters = ['exoPlanet_id' => $exoPlanet_id];
         
         $exoMoon_model = new exoMoonModel();
