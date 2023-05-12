@@ -84,6 +84,12 @@ class RocketController extends BaseController
         // Get URI Id Argument
         $rocket_id = $uri_args["rocket_id"];
 
+        $id_check = $this->checkId($rocket_id, $request);
+
+        if ($id_check) {
+            return $this->prepareErrorResponse($id_check);
+        }
+
         // Select Rocket Based on Id
         $result = $this->rocket_model->selectRocket($rocket_id);
 
