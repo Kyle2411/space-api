@@ -28,9 +28,10 @@ class AsteroidController extends BaseController
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
 
-        $filters = ArrayHelper::filterKeys($params, ["asteroidName", "danger", "designation", "monitored", "fromMinDiameter", "toMaxDiameter", "fromMagnitude", "toMagnitude"]);
+        $filters = ["asteroidName", "danger", "designation", "monitored", "fromMinDiameter", "toMaxDiameter", "fromMagnitude", "toMagnitude", "page", "pageSize"];
 
-        $data = $this->asteroid_model->selectAsteroids($filters, $page, $page_size);
+        $data = $this->asteroid_model->selectAsteroids($params, $page, $page_size);
+        $data = ["filters" => $filters, ...$data];
 
         return $this->prepareOkResponse($response, $data);
     }
