@@ -31,7 +31,23 @@ class ExoPlanetController extends BaseController
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["page_size"]) ? $params["page_size"] : null;
 
-        $filters = ["starId","exoPlanetName", "discoveryMethod" , "fromDiscoveryYear", "toDiscoveryYear"];
+        // Supported Filters
+        $filters = ["starId","exoPlanetName", "discoveryMethod" , "fromDiscoveryYear", "toDiscoveryYear", "page", "pageSize"];
+
+        // Set Param Rules
+        $rules["starId"] = ["optional", "numeric", ["min", 1], ["max", 99999999]];
+        $rules["exoPlanetName"] = ["optional", ["lengthBetween", 1, 64]];
+        $rules["discoveryMethod"] = ["optional", ["in", ["Radial Velocity", "Imaging", "Pulsation Timing Variations", "Transit", "Eclipse Timing Variations", "Microlensing", "Transit Timing Variations", "Pulsation Timing", "Disk Kinematics", "Orbital Brightness Modulation"]]];
+        $rules["fromDiscoveryYear"] = ["optional", "numeric", ["min", 0], ["max", 9999]];
+        $rules["toDiscoveryYear"] = ["optional", "numeric", ["min", 0], ["max", 9999]];
+        $rules["page"] = ["optional", "integer", ["min", 1], ["max", 99999]];
+        $rules["pageSize"] = ["optional", "integer", ["min", 1], ["max", 99999]];
+
+        $filters_check = $this->checkFilters($params, $filters, $rules, $request);
+
+        if ($filters_check) {
+            return $this->prepareErrorResponse($filters_check);
+        }
 
         $data = $this->exoPlanet_model->selectExoPlanets($params, $page, $page_size);
         $data = ["filters" => $filters, ...$data];
