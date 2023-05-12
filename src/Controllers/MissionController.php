@@ -29,9 +29,10 @@ class MissionController extends BaseController
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["page_size"]) ? $params["page_size"] : null;
 
-        $filters = ArrayHelper::filterKeys($params, ["rocketId", "missionName", "companyName", "fromMissionDate", "toMissionDate", "missionStatus"]);
+        $filters = ["rocketId", "missionName", "companyName", "fromMissionDate", "toMissionDate", "missionStatus"];
 
-        $data = $this->mission_model->selectMissions($filters, $page, $page_size);
+        $data = $this->mission_model->selectMissions($params, $page, $page_size);
+        $data = ["filters" => $filters, ...$data];
 
         return $this->prepareOkResponse($response, $data);
     }
