@@ -59,6 +59,12 @@ class ExoMoonController extends BaseController
     {
         $exomoon_id = $uri_args['exoMoon_id'];
 
+        $id_check = $this->checkId($exomoon_id, $request);
+
+        if ($id_check) {
+            return $this->prepareErrorResponse($id_check);
+        }
+
         $data = $this->exoMoon_model->selectExoMoon($exomoon_id);
 
         return $this->prepareOkResponse($response, $data);
