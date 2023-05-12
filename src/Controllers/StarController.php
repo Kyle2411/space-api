@@ -50,18 +50,19 @@ class StarController extends BaseController
     {
         $star_id = $uri_args['star_id'];
         $params = $request->getQueryParams();
+        $params["starId"] = $star_id;
 
         // Get Page and Page Size from Parameters
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
 
-        $filters = ArrayHelper::filterKeys($params, ["planetName", "planetColor", "star_id", "fromMass","toMass", "fromDiameter", "toDiameter","fromLengthOfDay","toLengthOfDay" ,"fromSurfaceGravity", "toSurfaceGravity", "toTemperature", "fromTemperature"]);
-        $filters["star_id"] = $star_id;
+        $filters = ["planetName", "planetColor", "starId", "fromMass","toMass", "fromDiameter", "toDiameter","fromLengthOfDay","toLengthOfDay" ,"fromSurfaceGravity", "toSurfaceGravity", "toTemperature", "fromTemperature"];
 
         $planet_model = new PlanetModel();
 
         $results = $this->star_model->selectStar($star_id);
-        $results['planets'] =  $planet_model->selectPlanets($filters, $page, $page_size);
+        $planets =  $planet_model->selectPlanets($params, $page, $page_size);
+        $results['planets'] = ["filters" => $filters, ...$planets];
 
         return $this->prepareOkResponse($response, $results ? $results : [], empty($results) ? 204 : 200);
     }
