@@ -59,6 +59,12 @@ class StarController extends BaseController
     public function handleGetStar(Request $request, Response $response, array $uri_args)
     {
         $star_id = $uri_args['star_id'];
+
+        $id_check = $this->checkId($star_id, $request);
+
+        if ($id_check) {
+            return $this->prepareErrorResponse($id_check);
+        }
         
         $results = $this->star_model->selectStar($star_id);
         
