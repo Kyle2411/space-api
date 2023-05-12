@@ -49,6 +49,10 @@ class ExoPlanetController extends BaseController
                throw $exception;
             }
 
+            if (ArrayHelper::isAssociative($body)) {
+                $body = [$body];
+            }
+
             $results = $this->exoPlanet_model->insertExoPlanets($body);
 
             // If Result Contains Missing or Failed Rows...
@@ -139,6 +143,10 @@ class ExoPlanetController extends BaseController
                $exception->setDescription("Request body is either empty or is not an array.");
                
                throw $exception;
+            }
+
+            if (ArrayHelper::isAssociative($body)) {
+                $body = [$body];
             }
 
             $results = $this->exoPlanet_model->updateExoPlanets($body);
