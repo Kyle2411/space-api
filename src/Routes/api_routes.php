@@ -65,7 +65,7 @@ $app->group('/exoplanets', function (RouteCollectorProxy $group) {
     $group->get('', [ExoPlanetController::class, 'handleGetExoPlanets']);
     $group->post('', [ExoPlanetController::class, 'handlePostExoPlanets']);
     $group->get('/{exoPlanet_id}', [ExoPlanetController::class, 'handleGetExoPlanet']);
-    $group->get('/{exoPlanet_id}/exoMoons', [ExoPlanetController::class, 'handleGetExoPlanetExoMoons']);
+    $group->get('/{exoPlanet_id}/exomoons', [ExoPlanetController::class, 'handleGetExoPlanetExoMoons']);
     $group->delete('', [ExoPlanetController::class, 'handleDeleteExoPlanets']);
     $group->patch('', [ExoPlanetController::class, 'handlePatchExoPlanets']);
 });
