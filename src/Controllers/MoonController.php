@@ -29,7 +29,23 @@ class MoonController extends BaseController
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
 
-        $filters = ["moonName", "moonMass", "fromMoonRadius", "toMoonRadius", "moonDensity"];
+        // Supported Filters
+        $filters = ["moonName", "moonMass", "fromMoonRadius", "toMoonRadius", "moonDensity", "page", "pageSize"];
+
+        // Set Param Rules
+        $rules["moonName"] = ["optional", ["lengthBetween", 1, 128]];
+        $rules["moonMass"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["fromMoonRadius"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["toMoonRadius"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["moonDensity"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["page"] = ["optional", "integer", ["min", 1], ["max", 99999]];
+        $rules["pageSize"] = ["optional", "integer", ["min", 1], ["max", 99999]];
+
+        $filters_check = $this->checkFilters($params, $filters, $rules, $request);
+
+        if ($filters_check) {
+            return $this->prepareErrorResponse($filters_check);
+        }
 
         $data = $this->moon_model->selectMoons($params, $page, $page_size);
         $data = ["filters" => $filters, ...$data];
