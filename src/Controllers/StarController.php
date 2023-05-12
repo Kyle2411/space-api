@@ -29,7 +29,26 @@ class StarController extends BaseController
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
 
-        $filters = ["starName", "temperature", "fromRadius", "toRadius", "fromMass", "toMass", "fromGravity", "toGravity"];
+        // Supported Filters
+        $filters = ["starName", "temperature", "fromRadius", "toRadius", "fromMass", "toMass", "fromGravity", "toGravity", "page", "pageSize"];
+
+        // Set Param Rules
+        $rules["starName"] = ["optional", ["lengthBetween", 1, 64]];
+        $rules["temperature"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
+        $rules["fromRadius"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["toRadius"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["fromMass"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["toMass"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["fromGravity"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["toGravity"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["page"] = ["optional", "integer", ["min", 1], ["max", 99999]];
+        $rules["pageSize"] = ["optional", "integer", ["min", 1], ["max", 99999]];
+
+        $filters_check = $this->checkFilters($params, $filters, $rules, $request);
+
+        if ($filters_check) {
+            return $this->prepareErrorResponse($filters_check);
+        }
 
         $results = $this->star_model->selectStars($params, $page, $page_size);
         $results = ["filters" => $filters, ...$results];
