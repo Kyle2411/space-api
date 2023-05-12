@@ -64,27 +64,28 @@ class StarController extends BaseController
         $planets =  $planet_model->selectPlanets($params, $page, $page_size);
         $results['planets'] = ["filters" => $filters, ...$planets];
 
-        return $this->prepareOkResponse($response, $results ? $results : [], empty($results) ? 204 : 200);
+        return $this->prepareOkResponse($response, $results ? $results : [], !isset($results["star_id"]) ? 204 : 200);
     }
 
     public function handleGetStarExoPlanets(Request $request, Response $response, array $uri_args)
     {
         $star_id = $uri_args['star_id'];
         $params = $request->getQueryParams();
+        $params["starId"] = $star_id;
 
         // Get Page and Page Size from Parameters
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
 
-        $filters = ArrayHelper::filterKeys($params, ["exoPlanetName", "discoveryMethod" , "fromDiscoveryYear", "toDiscoveryYear"]);
-        $filters["star_id"] = $star_id;
-
+        $filters = ["exoPlanetName", "discoveryMethod" , "fromDiscoveryYear", "toDiscoveryYear"];
+        
         $exoPlanet_model = new ExoPlanetModel();
 
         $results = $this->star_model->selectStar($star_id);
-        $results['exoPlanets'] =  $exoPlanet_model->selectExoPlanets($filters, $page, $page_size);
+        $exoplanets =  $exoPlanet_model->selectExoPlanets($params, $page, $page_size);
+        $results['exoPlanets'] = ["filters" => $filters, ...$exoplanets];
 
-        return $this->prepareOkResponse($response, $results ? $results : [], empty($results["data"]) ? 204 : 200);
+        return $this->prepareOkResponse($response, $results ? $results : [], !isset($results["star_id"]) ? 204 : 200);
 
     }
 
