@@ -36,11 +36,12 @@ class PlanetController extends BaseController
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["page_size"]) ? $params["page_size"] : null;
 
-        $filters = ArrayHelper::filterKeys($params, ["planetName", "planetColor", "starId", "fromMass","toMass", "fromDiameter", "toDiameter","fromLengthOfDay","toLengthOfDay" ,"fromSurfaceGravity", "toSurfaceGravity", "fromTemperature", "toTemperature"]);
+        $filters = ["planetName", "planetColor", "starId", "fromMass","toMass", "fromDiameter", "toDiameter","fromLengthOfDay","toLengthOfDay" ,"fromSurfaceGravity", "toSurfaceGravity", "fromTemperature", "toTemperature"];
 
-        $results = $this->planet_model->selectPlanets($filters, $page, $page_size);
+        $results = $this->planet_model->selectPlanets($params, $page, $page_size);
+        $results = ["filters" => $filters, ...$results];
 
-        //Composite Resource
+        // Composite Resource
         $controller = new CompositeResourcesController();
         $planetsImages = $controller->handleGetAllPlanetImages();
         
@@ -55,16 +56,6 @@ class PlanetController extends BaseController
                 }
             }
         }
-
-        // foreach($data['data'] as &$planet)
-        // {
-        //     $planet_uri = 'http://images-api.nasa.gov/search?q=' . $planet['planet_name'];
-        //     $wsInvoker = new WebServiceInvoker();
-        //     $planet_json = $wsInvoker->invokeUri($planet_uri);
-        //     $planet_data = json_decode($planet_json);
-
-        //     $planet["related_image"] = $planet_data->collection->items[0]->links[0]->href;
-        // }
 
         return $this->prepareOkResponse($response, $results);
     }
