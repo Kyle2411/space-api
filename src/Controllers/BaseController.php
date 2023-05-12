@@ -7,6 +7,8 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Psr7\Response as ResponseObj;
 use Vanier\Api\Exceptions\HttpUnprocessableContentException;
+use Vanier\Api\Helpers\ArrayHelper;
+use Vanier\Api\Helpers\Validator;
 
 class BaseController
 {
@@ -107,5 +109,32 @@ class BaseController
         $response->getBody()->write($payload);
         return $response->withHeader('Content-Type', APP_MEDIA_TYPE_JSON)
                         ->withStatus($status_code);
+    }
+
+    /**
+     * Check If Filters Are Supported Or Not
+     */
+    protected function checkFilters(array $check_filters, array $supported_filters, array $rules, Request $request) {
+        // Get Unsupported Keys from Parameters, If Any
+        $missingKeys = ArrayHelper::keepMissingKeys($check_filters, $supported_filters);
+
+        if (count($missingKeys) > 0) {
+            $description = ["error" => "Parameters sent with query are unsupported.", "supported_params" => $supported_filters, "unsupported_params" => array_keys($missingKeys)]; 
+
+            $exception = new HttpUnprocessableContentException($request);
+            return $exception->setDescription(json_encode($description));
+        }
+
+        $validator = new Validator($check_filters);
+        $validator->mapFieldsRules($rules);
+
+        if (!$validator->validate()) {
+            $description = ["error" => "Parameters sent with query are not properly formatted.", "errors" => $validator->errors()]; 
+
+            $exception = new HttpUnprocessableContentException($request);
+            return $exception->setDescription(json_encode($description));
+        }
+
+        return null;
     }
 }

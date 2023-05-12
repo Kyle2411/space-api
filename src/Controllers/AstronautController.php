@@ -6,7 +6,6 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
-use Vanier\Api\Helpers\Validator;
 use Slim\Exception\HttpException;
 use Vanier\Api\Exceptions\HttpBadRequestException;
 use Vanier\Api\Exceptions\HttpUnprocessableContentException;
@@ -58,17 +57,6 @@ class AstronautController extends BaseController
         // Supported Filters
         $filters = ["name", "sex", "fromBirthYear", "toBirthYear", "militaryStatus", "page", "pageSize"];
 
-        // Get Unsupported Keys from Parameters, If Any
-        $missingKeys = ArrayHelper::keepMissingKeys($params, $filters);
-
-        if (count($missingKeys) > 0) {
-            $description = ["error" => "Parameters sent with query are unsupported.", "supported_params" => $filters, "unsupported_params" => array_keys($missingKeys)]; 
-
-            $exception = new HttpUnprocessableContentException($request);
-            $exception->setDescription(json_encode($description));
-            return $this->prepareErrorResponse($exception);
-        }
-
         // Set Param Rules
         $rules["name"] = ["optional", ["lengthBetween", 1, 128]];
         $rules["sex"] =  ["optional", ["in", ["male", "female"]]];
@@ -76,15 +64,10 @@ class AstronautController extends BaseController
         $rules["toBirthYear"] = ["optional", "integer", ["min", 0], ["max", 99999]];
         $rules["militaryStatus"] = ["optional", "integer", ["min", 0], ["max", 1]];
 
-        $validator = new Validator($params);
-        $validator->mapFieldsRules($rules);
+        $filters_check = $this->checkFilters($params, $filters, $rules, $request);
 
-        if (!$validator->validate()) {
-            $description = ["error" => "Parameters sent with query are not properly formatted.", "errors" => $validator->errors()]; 
-
-            $exception = new HttpUnprocessableContentException($request);
-            $exception->setDescription(json_encode($description));
-            return $this->prepareErrorResponse($exception);
+        if ($filters_check) {
+            return $this->prepareErrorResponse($filters_check);
         }
 
         // Composite Resource
