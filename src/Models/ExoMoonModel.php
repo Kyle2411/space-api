@@ -23,44 +23,6 @@ class ExoMoonModel extends BaseModel  {
     }
 
     /**
-     * Summary of createExoMoon
-     * @param array $actor
-     * @return bool|string
-     */
-    public function createExoMoon(array $data)
-    {
-        $rules["exomoon_name"] = ["required", ["lengthBetween", 1, 64]];
-        $rules["exoplanet_id"] = ["required", "numeric", ["min", 0], ["max", 999999]];
-        $rules["discovery_method"] =  ["required", ["in", ["Radial Velocity","Imaging","Pulsation Timing Variations","Transit","Eclipse Timing Variations","Microlensing","Transit Timing Variations","Pulsation Timing","Disk Kinematics","Orbital Brightness Modulation"]]];
-        $rules["orbital_period_days"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
-        $rules["mass"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
-
-        // for each exoMoon
-        foreach ($data as $exoMoon) {
-            $validator = new Validator($exoMoon);
-            $validator->mapFieldsRules($rules);
-
-            // If Data Is valid...
-            if ($validator->validate()) {
-                // Get Fields from Data
-                $fields = ArrayHelper::filterKeys($exoMoon, ["exomoon_name", "exoplanet_id", "discovery_method", "orbital_period_days", "mass"]);
-                
-                // Insert Rocket Into Database
-                $last_id = $this->insert($this->table_name, $fields);
-
-                if ($last_id != 0) {
-                    $results["row_inserted"][] = $this->selectExoMoon($last_id);
-                } else {
-                    $results["rows_missing"][] = [...$exoMoon, "errors" => "An error occured while inserting row."];
-                }
-            } else {
-                $results["rows_failed"][] = [...$exoMoon, "errors" => $validator->errors()];
-            }
-        }
-        return $results;
-    }
-
-    /**
      * Select Actors from Database Based on Filters
      * @param array $filters Filters for Query
      * @param int $page Number of Current Page
@@ -100,11 +62,6 @@ class ExoMoonModel extends BaseModel  {
             $query_values[":discovery_method"] = $filters["discoveryMethod"];
         }
 
-      
-
-
-       
-
         $sql = $select . $from . $where . $group_by;
 
         // Return Paginated Results
@@ -143,6 +100,21 @@ class ExoMoonModel extends BaseModel  {
 
         // Base Statement
         $select = "SELECT exM.*";
+        $from = " FROM $this->table_name AS exM";
+        $where = " WHERE 1 ";
+        $group_by = "";
+
+
+        $sql = $select . $from . $where . $group_by;
+
+        return $this->run($sql);
+    }
+
+    public function selectExoMoonsForName() {
+        // Set Page and Page Size Default Values If Params Null
+
+        // Base Statement
+        $select = "SELECT exM.exomoon_name";
         $from = " FROM $this->table_name AS exM";
         $where = " WHERE 1 ";
         $group_by = "";
@@ -196,6 +168,47 @@ class ExoMoonModel extends BaseModel  {
     
         return $result;
     }
+
+     /**
+     * Summary of createExoMoon
+     * @param array $actor
+     * @return bool|string
+     */
+    public function createExoMoon(array $data)
+    {
+        $this->createValidators(true);
+
+        $rules["exomoon_name"] = ["required", ["lengthBetween", 1, 64], ["exomoon_Name_Exists"]];
+        $rules["exoplanet_id"] = ["required", "numeric", ["min", 0], ["max", 999999], ["exoplanetExists"]];
+        $rules["discovery_method"] =  ["required", ["in", ["Radial Velocity","Imaging","Pulsation Timing Variations","Transit","Eclipse Timing Variations","Microlensing","Transit Timing Variations","Pulsation Timing","Disk Kinematics","Orbital Brightness Modulation"]]];
+        $rules["orbital_period_days"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
+        $rules["mass"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
+
+        // for each exoMoon
+        foreach ($data as $exoMoon) {
+            $validator = new Validator($exoMoon);
+            $validator->mapFieldsRules($rules);
+
+            // If Data Is valid...
+            if ($validator->validate()) {
+                // Get Fields from Data
+                $fields = ArrayHelper::filterKeys($exoMoon, ["exomoon_name", "exoplanet_id", "discovery_method", "orbital_period_days", "mass"]);
+                
+                // Insert Rocket Into Database
+                $last_id = $this->insert($this->table_name, $fields);
+
+                if ($last_id != 0) {
+                    $results["row_inserted"][] = $this->selectExoMoon($last_id);
+                } else {
+                    $results["rows_missing"][] = [...$exoMoon, "errors" => "An error occured while inserting row."];
+                }
+            } else {
+                $results["rows_failed"][] = [...$exoMoon, "errors" => $validator->errors()];
+            }
+        }
+        return $results;
+    }
+
 
     /**
      * Summary of updateExoMoons
@@ -269,13 +282,13 @@ class ExoMoonModel extends BaseModel  {
         //Creating Custom moon_name validator 
         Validator::addRule('exomoon_Name_Exists', function($field, $value, array $params, array $fields) use ($checkUpdate)  {
          
-            $methodName = "selectMoonsSimple";
+            $methodName = "selectExoMoonsSimple";
             
-            $namerChecker = $this->checkExistingName($value, $methodName, $this,'exomoon_id', $field, $checkUpdate);
+            $namerChecker = $this->checkExistingName($value, $methodName, $this,'exomoon_name', $field, $checkUpdate);
            
             if($checkUpdate){
                 
-                if($fields['exomoon_id'] != $namerChecker){
+                if($fields['exomoon_name'] != $namerChecker){
                     
                     return false;
                 }
