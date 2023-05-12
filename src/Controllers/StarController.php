@@ -120,6 +120,21 @@ class StarController extends BaseController
         $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
 
         $filters = ["exoPlanetName", "discoveryMethod" , "fromDiscoveryYear", "toDiscoveryYear"];
+
+        // Set Param Rules
+        $rules["starId"] = ["optional", "numeric", ["min", 1], ["max", 99999999]];
+        $rules["exoPlanetName"] = ["optional", ["lengthBetween", 1, 64]];
+        $rules["discoveryMethod"] = ["optional", ["in", ["Radial Velocity", "Imaging", "Pulsation Timing Variations", "Transit", "Eclipse Timing Variations", "Microlensing", "Transit Timing Variations", "Pulsation Timing", "Disk Kinematics", "Orbital Brightness Modulation"]]];
+        $rules["fromDiscoveryYear"] = ["optional", "numeric", ["min", 0], ["max", 9999]];
+        $rules["toDiscoveryYear"] = ["optional", "numeric", ["min", 0], ["max", 9999]];
+        $rules["page"] = ["optional", "integer", ["min", 1], ["max", 99999]];
+        $rules["pageSize"] = ["optional", "integer", ["min", 1], ["max", 99999]];
+
+        $filters_check = $this->checkFilters($params, $filters, $rules, $request);
+
+        if ($filters_check) {
+            return $this->prepareErrorResponse($filters_check);
+        }
         
         $exoPlanet_model = new ExoPlanetModel();
 
