@@ -44,8 +44,27 @@ class RocketController extends BaseController
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
 
-        // Get Filters from Parameters
-        $filters = ["name", "company", "status", "fromThrust", "toThrust", "fromHeight", "toHeight", "fromPrice", "toPrice"];
+        // Supported Filters
+        $filters = ["name", "company", "status", "fromThrust", "toThrust", "fromHeight", "toHeight", "fromPrice", "toPrice", "page", "pageSize"];
+
+        // Set Param Rules
+        $rules["name"] = ["optional", ["lengthBetween", 1, 64]];
+        $rules["company"] = ["optional", ["lengthBetween", 1, 64]];
+        $rules["status"] = ["optional", ["in", ["Active", "Retired", "Planned"]]];
+        $rules["fromThrust"] = ["optional", "integer", ["min", 0], ["max", 9999999]];
+        $rules["toThrust"] = ["optional", "integer", ["min", 0], ["max", 9999999]];
+        $rules["fromHeight"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
+        $rules["toHeight"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
+        $rules["fromPrice"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["toPrice"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["page"] = ["optional", "integer", ["min", 1], ["max", 99999]];
+        $rules["pageSize"] = ["optional", "integer", ["min", 1], ["max", 99999]];
+
+        $filters_check = $this->checkFilters($params, $filters, $rules, $request);
+
+        if ($filters_check) {
+            return $this->prepareErrorResponse($filters_check);
+        }
 
         // Select Rockets Based on Filters
         $results = $this->rocket_model->selectRockets($params, $page, $page_size);
