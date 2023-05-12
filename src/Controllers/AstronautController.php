@@ -143,7 +143,6 @@ class AstronautController extends BaseController
 
         // Get URI Parameters
         $params = $request->getQueryParams();
-        $params["astronautId"] = $astronaut_id;
 
         // Get Page and Page Size from Parameters
         $page = isset($params["page"]) ? $params["page"] : null;
@@ -151,6 +150,24 @@ class AstronautController extends BaseController
 
         // Get Filters from Parameters
         $filters = ["missionName", "companyName", "fromMissionDate", "toMissionDate", "missionStatus", "page", "pageSize"];
+
+        // Set Param Rules
+        $rules["missionName"] = ["optional", ["lengthBetween", 1, 128]];
+        $rules["companyName"] = ["optional", ["lengthBetween", 1, 64]];
+        $rules["fromMissionDate"] = ["optional", ["dateFormat", "Y-m-d" ]];
+        $rules["toMissionDate"] = ["optional", ["dateFormat", "Y-m-d" ]];
+        $rules["missionStatus"] = ["optional", ["in", ["Success", "Failure", "Partial Failure", "Prelaunch Failure"]]];
+        $rules["page"] = ["optional", "integer", ["min", 1], ["max", 99999]];
+        $rules["pageSize"] = ["optional", "integer", ["min", 1], ["max", 99999]];
+
+        $filters_check = $this->checkFilters($params, $filters, $rules, $request);
+
+        if ($filters_check) {
+            return $this->prepareErrorResponse($filters_check);
+        }
+
+        // Add Astronaut Id to Params
+        $params["astronautId"] = $astronaut_id;
         
         $missions = $this->mission_model->selectMissions($params, $page, $page_size);
         $result["missions"] = ["filters" => $filters, ...$missions];
