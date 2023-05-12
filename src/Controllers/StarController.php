@@ -97,6 +97,10 @@ class StarController extends BaseController
                throw $exception;
             }
 
+            if (ArrayHelper::isAssociative($body)) {
+                $body = [$body];
+            }
+
             $results = $this->star_model->insertStars($body);
 
             // If Result Contains Missing or Failed Rows...
@@ -126,6 +130,10 @@ class StarController extends BaseController
                $exception->setDescription("Request body is either empty or is not an array.");
                
                throw $exception;
+            }
+
+            if (ArrayHelper::isAssociative($body)) {
+                $body = [$body];
             }
 
             $results = $this->star_model->updateStars($body);
