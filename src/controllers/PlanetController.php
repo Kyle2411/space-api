@@ -97,6 +97,11 @@ class PlanetController extends BaseController
     {
         $planet_id = $uri_args['planet_id'];
 
+        $id_check = $this->checkId($planet_id, $request);
+
+        if ($id_check) {
+            return $this->prepareErrorResponse($id_check);
+        }
         
         $moon_model = new moonModel();
 
