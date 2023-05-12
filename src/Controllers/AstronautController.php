@@ -107,6 +107,12 @@ class AstronautController extends BaseController
         // Get URI Id Argument
         $astronaut_id = $uri_args["astronaut_id"];
 
+        $id_check = $this->checkId($astronaut_id, $request);
+
+        if ($id_check) {
+            return $this->prepareErrorResponse($id_check);
+        }
+
         $controller = new CompositeResourcesController();
         $astronautsInSpace = $controller->handleGetAllAstronautsInSpace();
 
