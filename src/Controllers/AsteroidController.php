@@ -28,7 +28,26 @@ class AsteroidController extends BaseController
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
 
+        // Supported Filters
         $filters = ["asteroidName", "danger", "designation", "monitored", "fromMinDiameter", "toMaxDiameter", "fromMagnitude", "toMagnitude", "page", "pageSize"];
+
+        // Set Param Rules
+        $rules["asteroidName"] = ["optional", ["lengthBetween", 1, 64]];
+        $rules["designation"] = ["optional", "numeric", ["min", 0], ["max", 999999]];
+        $rules["monitored"] = ["optional", "integer", ["min", 0], ["max", 1]];
+        $rules["danger"] = ["optional", "integer", ["min", 0], ["max", 1]];
+        $rules["fromMagnitude"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["toMagnitude"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["fromMinDiameter"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["toMaxDiameter"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["page"] = ["optional", "integer", ["min", 1], ["max", 99999]];
+        $rules["pageSize"] = ["optional", "integer", ["min", 1], ["max", 99999]];
+
+        $filters_check = $this->checkFilters($params, $filters, $rules, $request);
+
+        if ($filters_check) {
+            return $this->prepareErrorResponse($filters_check);
+        }
 
         $data = $this->asteroid_model->selectAsteroids($params, $page, $page_size);
         $data = ["filters" => $filters, ...$data];
