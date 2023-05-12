@@ -57,6 +57,12 @@ class MoonController extends BaseController
     {
         $moon_id = $uri_args['moon_id'];
 
+        $id_check = $this->checkId($moon_id, $request);
+
+        if ($id_check) {
+            return $this->prepareErrorResponse($id_check);
+        }
+
         $data = $this->moon_model->selectMoon($moon_id);
 
         return $this->prepareOkResponse($response, $data);
