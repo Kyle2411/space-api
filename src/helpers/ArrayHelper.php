@@ -61,4 +61,27 @@ class ArrayHelper {
 
         return true;
     }
+
+    /**
+     * Check If Array Is Associate or Not
+     * @param $array Array to Check
+     * @return bool True or False Based on If Is An Associative Array or Not
+     */
+    public static function isAssociative(array $array) {
+        // If Array Is Empty...
+        if ($array == []) {
+            return true;
+        }
+
+        $count = count($array);
+
+        for ($i = 0; $i < $count; $i++) {
+            // If Number Doesn't Exist...
+            if(!array_key_exists($i, $array)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
