@@ -29,8 +29,11 @@ class MoonController extends BaseController
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
 
-        $filters = ArrayHelper::filterKeys($params, ["moonName", "moonMass", "fromMoonRadius", "toMoonRadius", "moonDensity"]);
-        $data = $this->moon_model->selectMoons($filters, $page, $page_size);
+        $filters = ["moonName", "moonMass", "fromMoonRadius", "toMoonRadius", "moonDensity"];
+
+        $data = $this->moon_model->selectMoons($params, $page, $page_size);
+        $data = ["filters" => $filters, ...$data];
+
         return $this->prepareOkResponse($response, $data);
     }
 
