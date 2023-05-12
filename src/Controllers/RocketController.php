@@ -112,7 +112,6 @@ class RocketController extends BaseController
 
         // Get URI Parameters
         $params = $request->getQueryParams();
-        $params["rocketId"] = $rocket_id;
 
         // Get Page and Page Size from Parameters
         $page = isset($params["page"]) ? $params["page"] : null;
@@ -135,6 +134,8 @@ class RocketController extends BaseController
         if ($filters_check) {
             return $this->prepareErrorResponse($filters_check);
         }
+
+        $params["rocketId"] = $rocket_id;
 
         $missions = $this->mission_model->selectMissions($params, $page, $page_size);
         $result["missions"] = ["filters" => $filters, ...$missions];
