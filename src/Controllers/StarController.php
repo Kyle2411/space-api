@@ -29,9 +29,10 @@ class StarController extends BaseController
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
 
-        $filters = ArrayHelper::filterKeys($params, ["starName", "temperature", "fromRadius", "toRadius", "fromMass", "toMass", "fromGravity", "toGravity"]);
+        $filters = ["starName", "temperature", "fromRadius", "toRadius", "fromMass", "toMass", "fromGravity", "toGravity"];
 
-        $results = $this->star_model->selectStars($filters, $page, $page_size);
+        $results = $this->star_model->selectStars($params, $page, $page_size);
+        $results = ["filters" => $filters, ...$results];
 
         return $this->prepareOkResponse($response, $results);
     }
