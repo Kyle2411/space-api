@@ -81,7 +81,7 @@ class StarController extends BaseController
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
 
-        $filters = ["planetName", "planetColor", "fromMass","toMass", "fromDiameter", "toDiameter","fromLengthOfDay","toLengthOfDay" ,"fromSurfaceGravity", "toSurfaceGravity", "toTemperature", "fromTemperature"];
+        $filters = ["planetName", "planetColor", "fromMass","toMass", "fromDiameter", "toDiameter","fromLengthOfDay","toLengthOfDay" ,"fromSurfaceGravity", "toSurfaceGravity", "toTemperature", "fromTemperature", "page", "pageSize"];
 
         // Set Param Rules
         $rules["starId"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
@@ -121,14 +121,20 @@ class StarController extends BaseController
     public function handleGetStarExoPlanets(Request $request, Response $response, array $uri_args)
     {
         $star_id = $uri_args['star_id'];
+
+        $id_check = $this->checkId($star_id, $request);
+
+        if ($id_check) {
+            return $this->prepareErrorResponse($id_check);
+        }
+
         $params = $request->getQueryParams();
-        $params["starId"] = $star_id;
 
         // Get Page and Page Size from Parameters
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
 
-        $filters = ["exoPlanetName", "discoveryMethod" , "fromDiscoveryYear", "toDiscoveryYear"];
+        $filters = ["exoPlanetName", "discoveryMethod" , "fromDiscoveryYear", "toDiscoveryYear", "page", "pageSize"];
 
         // Set Param Rules
         $rules["starId"] = ["optional", "numeric", ["min", 1], ["max", 99999999]];
@@ -144,6 +150,8 @@ class StarController extends BaseController
         if ($filters_check) {
             return $this->prepareErrorResponse($filters_check);
         }
+
+        $params["starId"] = $star_id;
         
         $exoPlanet_model = new ExoPlanetModel();
 
