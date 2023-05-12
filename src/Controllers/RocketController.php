@@ -45,10 +45,11 @@ class RocketController extends BaseController
         $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
 
         // Get Filters from Parameters
-        $filters = ArrayHelper::filterKeys($params, ["name", "company", "status", "fromThrust", "toThrust", "fromHeight", "toHeight", "fromPrice", "toPrice"]);
+        $filters = ["name", "company", "status", "fromThrust", "toThrust", "fromHeight", "toHeight", "fromPrice", "toPrice"];
 
         // Select Rockets Based on Filters
-        $results = $this->rocket_model->selectRockets($filters, $page, $page_size);
+        $results = $this->rocket_model->selectRockets($params, $page, $page_size);
+        $results = ["filters" => $filters, ...$results];
 
         return $this->prepareOkResponse($response, $results, empty($results["data"]) ? 204 : 200);
     }
