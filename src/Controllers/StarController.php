@@ -68,14 +68,20 @@ class StarController extends BaseController
     public function handleGetStarPlanets(Request $request, Response $response, array $uri_args)
     {
         $star_id = $uri_args['star_id'];
+
+        $id_check = $this->checkId($star_id, $request);
+
+        if ($id_check) {
+            return $this->prepareErrorResponse($id_check);
+        }
+
         $params = $request->getQueryParams();
-        $params["starId"] = $star_id;
 
         // Get Page and Page Size from Parameters
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
 
-        $filters = ["planetName", "planetColor", "starId", "fromMass","toMass", "fromDiameter", "toDiameter","fromLengthOfDay","toLengthOfDay" ,"fromSurfaceGravity", "toSurfaceGravity", "toTemperature", "fromTemperature"];
+        $filters = ["planetName", "planetColor", "fromMass","toMass", "fromDiameter", "toDiameter","fromLengthOfDay","toLengthOfDay" ,"fromSurfaceGravity", "toSurfaceGravity", "toTemperature", "fromTemperature"];
 
         // Set Param Rules
         $rules["starId"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
@@ -99,6 +105,9 @@ class StarController extends BaseController
         if ($filters_check) {
             return $this->prepareErrorResponse($filters_check);
         }
+
+        // Add Star Id to Params
+        $params["starId"] = $star_id;
 
         $planet_model = new PlanetModel();
 
