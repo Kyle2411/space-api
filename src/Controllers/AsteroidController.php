@@ -55,6 +55,10 @@ class AsteroidController extends BaseController
                throw $exception;
             }
 
+            if (ArrayHelper::isAssociative($body)) {
+                $body = [$body];
+            }
+
             $results = $this->asteroid_model->insertAsteroids($body);
 
             // If Result Contains Missing or Failed Rows...
@@ -84,6 +88,10 @@ class AsteroidController extends BaseController
                $exception->setDescription("Request body is either empty or is not an array.");
                
                throw $exception;
+            }
+
+            if (ArrayHelper::isAssociative($body)) {
+                $body = [$body];
             }
 
             $results = $this->asteroid_model->updateAsteroids($body);
