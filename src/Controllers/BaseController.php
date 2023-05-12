@@ -142,8 +142,8 @@ class BaseController
      * Check If Id Is In A Valid Format
      */
     protected function checkId($id, Request $request) {
-        if (!is_int($id)) {
-            $description = "Id must be an integer.";
+        if (intval($id) === 0) {
+            $description = "Id must be an integer or not 0.";
 
             $exception = new HttpUnprocessableContentException($request);
             return $exception->setDescription(json_encode($description));
