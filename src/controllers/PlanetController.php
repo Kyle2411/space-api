@@ -36,7 +36,31 @@ class PlanetController extends BaseController
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["page_size"]) ? $params["page_size"] : null;
 
-        $filters = ["planetName", "planetColor", "starId", "fromMass","toMass", "fromDiameter", "toDiameter","fromLengthOfDay","toLengthOfDay" ,"fromSurfaceGravity", "toSurfaceGravity", "fromTemperature", "toTemperature"];
+        // Supported Filters
+        $filters = ["planetName", "planetColor", "starId", "fromMass","toMass", "fromDiameter", "toDiameter","fromLengthOfDay","toLengthOfDay" ,"fromSurfaceGravity", "toSurfaceGravity", "fromTemperature", "toTemperature", "page", "pageSize"];
+
+        // Set Param Rules
+        $rules["starId"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["planetName"] = ["optional", ["lengthBetween", 1, 64]];
+        $rules["planetColor"] = ["optional", ["lengthBetween", 1, 64]];
+        $rules["fromMass"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["toMass"] = ["optional", "numeric", ["min", 0], ["max", 99999999]];
+        $rules["fromDiameter"] = ["optional", "numeric", ["min", 0], ["max", 9999]];
+        $rules["toDiameter"] = ["optional", "numeric", ["min", 0], ["max", 9999]];
+        $rules["fromLengthOfDay"] = ["optional", "numeric", ["min", 0], ["max", 9999]];
+        $rules["toLengthOfDay"] = ["optional", "numeric", ["min", 0], ["max", 9999]];
+        $rules["fromSurfaceGravity"] = ["optional", "numeric", ["min", 0], ["max", 9999]];
+        $rules["toSurfaceGravity"] = ["optional", "numeric", ["min", 0], ["max", 9999]];
+        $rules["fromTemperature"] = ["optional", "numeric", ["min", 0], ["max", 9999]];
+        $rules["toTemperature"] = ["optional", "numeric", ["min", 0], ["max", 9999]];
+        $rules["page"] = ["optional", "integer", ["min", 1], ["max", 99999]];
+        $rules["pageSize"] = ["optional", "integer", ["min", 1], ["max", 99999]];
+
+        $filters_check = $this->checkFilters($params, $filters, $rules, $request);
+
+        if ($filters_check) {
+            return $this->prepareErrorResponse($filters_check);
+        }
 
         $results = $this->planet_model->selectPlanets($params, $page, $page_size);
         $results = ["filters" => $filters, ...$results];
