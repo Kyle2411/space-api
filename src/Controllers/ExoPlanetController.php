@@ -93,6 +93,12 @@ class ExoPlanetController extends BaseController
     {
         $exoplanet_id = $uri_args['exoPlanet_id'];
 
+        $id_check = $this->checkId($exoplanet_id, $request);
+
+        if ($id_check) {
+            return $this->prepareErrorResponse($id_check);
+        }
+
         $data = $this->exoPlanet_model->selectExoPlanet($exoplanet_id);
         return $this->prepareOkResponse($response, $data);
     }
