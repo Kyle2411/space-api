@@ -138,6 +138,15 @@ class AstronautController extends BaseController
         // Get URI Id Argument
         $astronaut_id = $uri_args["astronaut_id"];
 
+        if (!is_int($astronaut_id)) {
+            $description = "Id must be an integer.";
+
+            $exception = new HttpUnprocessableContentException($request);
+            $exception->setDescription(json_encode($description));
+
+            return $this->prepareErrorResponse($exception);
+        }
+
         // Select Astronauts Based on Id
         $result = $this->astronaut_model->selectAstronaut($astronaut_id);
 
