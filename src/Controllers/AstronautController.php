@@ -158,16 +158,17 @@ class AstronautController extends BaseController
 
         // Get URI Parameters
         $params = $request->getQueryParams();
+        $params["astronautId"] = $astronaut_id;
 
         // Get Page and Page Size from Parameters
         $page = isset($params["page"]) ? $params["page"] : null;
         $page_size = isset($params["pageSize"]) ? $params["pageSize"] : null;
 
         // Get Filters from Parameters
-        $filters = ArrayHelper::filterKeys($params, ["missionName", "companyName", "fromMissionDate", "toMissionDate", "missionStatus"]);
-        $filters["astronautId"] = $astronaut_id;
+        $filters = ["missionName", "companyName", "fromMissionDate", "toMissionDate", "missionStatus", "page", "pageSize"];
         
-        $result["missions"] = $this->mission_model->selectMissions($filters, $page, $page_size);
+        $missions = $this->mission_model->selectMissions($params, $page, $page_size);
+        $result["missions"] = ["filters" => $filters, ...$missions];
 
         return $this->prepareOkResponse($response, $result ? $result : [], empty($result) ? 204 : 200);
     }
