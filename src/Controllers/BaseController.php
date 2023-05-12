@@ -137,4 +137,18 @@ class BaseController
 
         return null;
     }
+
+    /** 
+     * Check If Id Is In A Valid Format
+     */
+    protected function checkId($id, Request $request) {
+        if (!is_int($id)) {
+            $description = "Id must be an integer.";
+
+            $exception = new HttpUnprocessableContentException($request);
+            return $exception->setDescription(json_encode($description));
+        }
+
+        return null;
+    }
 }
