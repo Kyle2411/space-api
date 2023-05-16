@@ -189,6 +189,14 @@ class PlanetController extends BaseController
         $data = $this->planet_model->selectPlanets();
         $allPlanets = $data['data'];
         $planet_data = [];
+
+        $desired_columns = ['planet_name','weight', 'unit'];
+        $checkColumn = $this->checkColumns($weight_data, $desired_columns, [], $request, $response);
+        
+        if($checkColumn->getStatusCode() == 422){
+
+            return $checkColumn;
+        }
         
 
         foreach($allPlanets as &$planet)
