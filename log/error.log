@@ -1,0 +1,4 @@
+[2023-05-16T11:07:19.443788-04:00] error_logs.ERROR: kylehusbands@gmail.com Failed to make a /space-api/planets/weight GET Request because '' at: 2023-05-16 11:07:19 [] []
+[2023-05-16T11:10:07.144439-04:00] error_logs.ERROR: kylehusbands@gmail.com Failed to make a /space-api/planets/weight POST Request because '' at: 2023-05-16 11:10:07 [] []
+[2023-05-16T11:16:21.470464-04:00] error_logs.ERROR: kylehusbands@gmail.com Failed to make a /space-api/exoplanets PATCH Request because 'The server understands the content type of the request entity, and the syntax of the request entity is correct, but it was unable to process the contained instructions.' at: 2023-05-16 11:16:21 [] []
+[2023-05-16T11:18:57.013252-04:00] error_logs.ERROR: jane@gmail.com Failed to create account because The email is already in use at: 2023-05-16 11:18:57 [] []

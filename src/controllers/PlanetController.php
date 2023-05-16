@@ -217,9 +217,12 @@ class PlanetController extends BaseController
             )->toMany($unit_data, 2 , true);
 
         //$totalWeight = round($totalWeight, 2);
+
+        $result["message"] = "Your weight on planet: " . $planetName;
+        $result["weights"] = $totalWeight;
             
-        $json_data = json_encode($totalWeight);
-        $response->getBody()->write("Your weight on planet: " . $planetName . "\n" . "is " . $json_data . "\n");
+        $json_data = json_encode($result);
+        $response->getBody()->write($json_data);
 
 
         return $response->withStatus(StatusCodeInterface::STATUS_ACCEPTED)->withHeader("Content-Type", "application/json");

@@ -51,10 +51,16 @@ class LoggingMiddleware implements MiddlewareInterface
         $errorLogger->setTimeZone(new DateTimeZone('America/Toronto'));
         $log_handler = new StreamHandler(APP_LOG_DIR.'error.log', Logger::DEBUG);
         $errorLogger->pushHandler($log_handler);
+
+        $response = $handler->handle($request);
+        $body = (string) $response->getBody();
+        $data = json_decode($body);
+        
+        $status = $response->getStatusCode();
     
         //Retrieving User Info via Token
         
-        
+       
         //Checking if token is in request Bearer body
         
         $uriPartial =explode("/", $request->getUri()->getPath());
@@ -66,28 +72,52 @@ class LoggingMiddleware implements MiddlewareInterface
 
         $logging_model = new WSLoggingModel();
         
-        $logging_model->logUserAction($token_payload, $request_info);
+        $logging_model->logUserAction($token_payload, $request_info, $status);
 
         //Retrieving email from token payload
         $emailRequest = $token_payload["email"];
+        
 
         //Logging user request info
+        if($status == 200 || $status == 201 || $status == 204){
         $logger->info($emailRequest. " made a ". $request->getUri()->getPath()." ". $request->getMethod() ." Request at: " . $this->getCurrentDateAndTime());
         
         $response = $handler->handle($request);
         return $response;
+        }
+
+        else{
+           
+            if($request->getUri()->getPath() == "space-api/planets/weight"){
+
+                
+            }
+
+            if($request->getMethod() == "GET"){
+                $message = $data->error->description->error;
+                $errorLogger->error($emailRequest. " Failed to make a ". $request->getUri()->getPath()." ". $request->getMethod() ." Request because '". $message . "' at: " . $this->getCurrentDateAndTime());
+            
+                $response = $handler->handle($request);
+                return $response;
+            }
+            else{
+
+                
+            $message = $data->error->message;
+            
+            $errorLogger->error($emailRequest. " Failed to make a ". $request->getUri()->getPath()." ". $request->getMethod() ." Request because '". $message . "' at: " . $this->getCurrentDateAndTime());
+        
+            $response = $handler->handle($request);
+            return $response;
+            }
+        }
     }
 
         //if no token is in request Bearer body
         else{
             
-            $response = $handler->handle($request);
-            $body = (string) $response->getBody();
-            $data = json_decode($body);
 
             $message = $data->message;
-            $status = $response->getStatusCode();
-            
             
             $uriPartial =explode("/", $request->getUri()->getPath());
 

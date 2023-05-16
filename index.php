@@ -41,11 +41,10 @@ $app->setBasePath("/space-api");
 // NOTE: your routes must be managed in the api_routes.php file.
 require_once __DIR__ . '/src/Routes/api_routes.php';
 
+ $app->add(new LoggingMiddleware());
 
-// $app->add(new LoggingMiddleware());
-
-// $jwt_secret = JWTManager::getSecretKey();
-// $app->add(new JWTAuthMiddleware());
+$jwt_secret = JWTManager::getSecretKey();
+$app->add(new JWTAuthMiddleware());
 
 
 // $app->add(new JWTAuthMiddleware([

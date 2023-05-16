@@ -25,10 +25,11 @@ class WSLoggingModel extends BaseModel {
      * @param array $log_data The data to be logged in the DB.
      * @return array
      */
-    public function logUserAction($jwt_payload, $uer_action) {
+    public function logUserAction($jwt_payload, $uer_action, $status) {
         $log_data["user_id"] = $jwt_payload["id"];
         $log_data["email"] = $jwt_payload["email"];
         $log_data["user_action"] = $uer_action;
+        $log_data["status"] = $status;
         $log_data["logged_at"] = $this->getCurrentDateAndTime();
         return $this->insert($this->table_name, $log_data);
     }
