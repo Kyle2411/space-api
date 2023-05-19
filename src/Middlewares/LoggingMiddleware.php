@@ -80,7 +80,7 @@ class LoggingMiddleware implements MiddlewareInterface
         if($status == 200 || $status == 201 || $status == 204 || $status == 202){
         $logger->info($emailRequest. " made a ". $request->getUri()->getPath()." ". $request->getMethod() ." Request at: " . $this->getCurrentDateAndTime());
         
-        $response = $handler->handle($request);
+
         return $response;
         }
 
@@ -91,7 +91,7 @@ class LoggingMiddleware implements MiddlewareInterface
                 $message = $data->message;
                 $errorLogger->error($emailRequest. " Failed to make a ". $request->getUri()->getPath()." ". $request->getMethod() ." Request because '". $message . "' at: " . $this->getCurrentDateAndTime());
             
-                $response = $handler->handle($request);
+           
                 return $response;
                 
             }
@@ -100,7 +100,7 @@ class LoggingMiddleware implements MiddlewareInterface
                 $message = $data->error->description->error;
                 $errorLogger->error($emailRequest. " Failed to make a ". $request->getUri()->getPath()." ". $request->getMethod() ." Request because '". $message . "' at: " . $this->getCurrentDateAndTime());
             
-                $response = $handler->handle($request);
+           
                 return $response;
             }
             else{
@@ -110,7 +110,7 @@ class LoggingMiddleware implements MiddlewareInterface
             
             $errorLogger->error($emailRequest. " Failed to make a ". $request->getUri()->getPath()." ". $request->getMethod() ." Request because '". $message . "' at: " . $this->getCurrentDateAndTime());
         
-            $response = $handler->handle($request);
+          
             return $response;
             }
         }
@@ -152,7 +152,7 @@ class LoggingMiddleware implements MiddlewareInterface
             
         }
 
-        $response = $handler->handle($request);
+    
         return $response;
     }
 }
