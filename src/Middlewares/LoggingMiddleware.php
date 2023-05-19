@@ -59,8 +59,6 @@ class LoggingMiddleware implements MiddlewareInterface
         $status = $response->getStatusCode();
     
         //Retrieving User Info via Token
-        
-       
         //Checking if token is in request Bearer body
         
         $uriPartial =explode("/", $request->getUri()->getPath());
@@ -79,7 +77,7 @@ class LoggingMiddleware implements MiddlewareInterface
         
 
         //Logging user request info
-        if($status == 200 || $status == 201 || $status == 204){
+        if($status == 200 || $status == 201 || $status == 204 || $status == 202){
         $logger->info($emailRequest. " made a ". $request->getUri()->getPath()." ". $request->getMethod() ." Request at: " . $this->getCurrentDateAndTime());
         
         $response = $handler->handle($request);
@@ -88,8 +86,13 @@ class LoggingMiddleware implements MiddlewareInterface
 
         else{
            
-            if($request->getUri()->getPath() == "space-api/planets/weight"){
-
+            if($request->getUri()->getPath() == "/space-api/planets/weight"){
+                
+                $message = $data->message;
+                $errorLogger->error($emailRequest. " Failed to make a ". $request->getUri()->getPath()." ". $request->getMethod() ." Request because '". $message . "' at: " . $this->getCurrentDateAndTime());
+            
+                $response = $handler->handle($request);
+                return $response;
                 
             }
 
